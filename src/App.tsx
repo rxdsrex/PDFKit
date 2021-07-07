@@ -35,7 +35,6 @@ const App = () => {
         barStyle={backgroundStyle}>
         <Tab.Screen
           name="Create"
-          component={CreateScreen}
           options={{
             tabBarLabel: 'Create',
             tabBarIcon: ({color}) => (
@@ -43,10 +42,11 @@ const App = () => {
             ),
             tabBarAccessibilityLabel: 'Create a new PDF',
           }}
+          children={() => <CreateScreen isDarkMode />}
         />
         <Tab.Screen
           name="Modify"
-          component={ModifyScreen}
+          children={() => <ModifyScreen isDarkMode />}
           options={{
             tabBarLabel: 'Modify',
             tabBarIcon: ({color}) => (

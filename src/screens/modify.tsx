@@ -1,10 +1,10 @@
 import React from 'react';
-import {Text, useColorScheme, View, ScrollView} from 'react-native';
+import {Text, View, ScrollView} from 'react-native';
 
 import styles from './styling/styles';
+import {ScreenProps} from '../types';
 
-const ModifyScreen = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+const ModifyScreen = ({isDarkMode}: ScreenProps) => {
   return (
     <ScrollView contentContainerStyle={styles(isDarkMode).default}>
       <View style={styles(isDarkMode).default}>

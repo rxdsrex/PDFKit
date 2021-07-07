@@ -1,11 +1,11 @@
 import React from 'react';
-import {Text, useColorScheme, View, ScrollView} from 'react-native';
+import {Text, View, ScrollView} from 'react-native';
 import {Button} from 'react-native-paper';
 
 import styles from './styling/styles';
+import {ScreenProps} from '../types';
 
-const CreateScreen = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+const CreateScreen = ({isDarkMode}: ScreenProps) => {
   const [isPress, setIsPress] = React.useState(false);
   return (
     <ScrollView contentContainerStyle={styles(isDarkMode).default}>
