@@ -1,3 +1,3 @@
-export interface ScreenProps {
-  isDarkMode: boolean;
+export interface imgPickerScreenProps {
+  backScreenName: string;
 }

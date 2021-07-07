@@ -1,12 +1,13 @@
 import React from 'react';
-import {useNavigation} from '@react-navigation/native';
 import {Text, View, ScrollView} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 
 import styles from './styling/styles';
+import {imgPickerScreenProps} from '../types';
 
-const ModifyScreen = () => {
+const PickImagesScreen = ({backScreenName}: imgPickerScreenProps) => {
   const isDarkMode = useColorScheme() === 'dark';
   const navigation = useNavigation();
   const [isPress, setIsPress] = React.useState(false);
@@ -19,14 +20,16 @@ const ModifyScreen = () => {
           uppercase={false}
           onPress={function () {
             isPress ? setIsPress(false) : setIsPress(true);
-            navigation.navigate('PickImage');
+            navigation.navigate(backScreenName);
           }}>
-          <Text style={styles(isDarkMode).text}>Pick Images</Text>
+          <Text style={styles(isDarkMode).text}>
+            Go back to {backScreenName}
+          </Text>
         </Button>
-        <Text style={styles(isDarkMode).text}>Modify Screen!</Text>
+        <Text style={styles(isDarkMode).text}>Image Picker Screen!</Text>
       </View>
     </ScrollView>
   );
 };
 
-export default ModifyScreen;
+export default PickImagesScreen;
