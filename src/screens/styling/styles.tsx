@@ -1,10 +1,10 @@
 import {StyleSheet} from 'react-native';
-import Colors from '../../components/colors';
+import Colors from '../../colors';
 
 const styles = (isDarkMode: boolean) => {
   return StyleSheet.create({
     default: {
-      paddingTop: '5%',
+      paddingTop: '10%',
       flex: 1,
       justifyContent: 'flex-start',
       alignItems: 'center',
