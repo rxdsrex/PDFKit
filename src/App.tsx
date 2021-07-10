@@ -15,7 +15,7 @@ import Colors from './colors';
 import {NavigationContainer} from '@react-navigation/native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
-import BottomTabs from './components/bottomTabs';
+import HomeStack from './components/homeStack';
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -33,7 +33,7 @@ const App = () => {
           },
           dark: isDarkMode,
         }}>
-        <BottomTabs />
+        <HomeStack />
       </NavigationContainer>
     </SafeAreaProvider>
   );
