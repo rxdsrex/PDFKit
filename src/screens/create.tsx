@@ -5,7 +5,7 @@ import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
-import styles from './styling/styles';
+import styles from '../components/styles';
 import {imgRouteProps} from '../types';
 import {Results} from '@baronha/react-native-multiple-image-picker';
 

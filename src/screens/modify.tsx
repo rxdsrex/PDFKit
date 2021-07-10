@@ -7,7 +7,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {Results} from '@baronha/react-native-multiple-image-picker';
 
 import {imgRouteProps} from '../types';
-import styles from './styling/styles';
+import styles from '../components/styles';
 
 const ModifyScreen = () => {
   const isDarkMode = useColorScheme() === 'dark';

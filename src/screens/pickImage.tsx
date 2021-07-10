@@ -15,7 +15,7 @@ import MultipleImagePicker, {
   Results,
 } from '@baronha/react-native-multiple-image-picker';
 
-import styles from './styling/styles';
+import styles from '../components/styles';
 import {renderItemProps, imgRouteProps} from '../types';
 
 const PickImagesScreen = () => {
