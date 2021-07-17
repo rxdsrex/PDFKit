@@ -8,6 +8,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import styles from '../components/styles';
 import {imgRouteProps} from '../types';
 import {Results} from '@baronha/react-native-multiple-image-picker';
+import Colors from '../colors';
 
 const CreateScreen = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -18,8 +19,13 @@ const CreateScreen = () => {
   const images: Results[] = route.params ? route.params.gotImages : [];
 
   return (
-    <ScrollView contentContainerStyle={[css.default, css.centerDiv]}>
-      <SafeAreaView style={[css.default, css.centerDiv]}>
+    <ScrollView
+      contentContainerStyle={[
+        css.default,
+        css.centerDiv,
+        {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter},
+      ]}>
+      <SafeAreaView>
         <Button
           color="blue"
           mode="contained"

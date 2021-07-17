@@ -6,7 +6,6 @@ const styles = (isDarkMode?: boolean, width: number = 0) => {
     default: {
       flex: 1,
       color: isDarkMode ? Colors.white : Colors.black,
-      backgroundColor: isDarkMode ? Colors.black : Colors.white,
     },
     centerDiv: {
       paddingTop: '5%',

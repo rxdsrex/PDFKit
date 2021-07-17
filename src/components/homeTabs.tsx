@@ -11,20 +11,18 @@ const Tab = createMaterialBottomTabNavigator();
 
 const HomeTabs = () => {
   const isDarkMode = useColorScheme() === 'dark';
-  const bottomBarStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
 
   return (
     <Tab.Navigator
       initialRouteName="Create"
       backBehavior="order"
-      activeColor="#e91e63"
-      barStyle={bottomBarStyle}>
+      activeColor={Colors.wheatish}
+      shifting={true}>
       <Tab.Screen
         name="Create"
         options={{
           tabBarLabel: 'Create',
+          tabBarColor: isDarkMode ? Colors.darkBlue : Colors.lightBlue,
           tabBarIcon: ({color}) => (
             <Ionicons name="md-create-sharp" color={color} size={24} />
           ),
@@ -36,6 +34,7 @@ const HomeTabs = () => {
         name="Modify"
         options={{
           tabBarLabel: 'Modify',
+          tabBarColor: isDarkMode ? Colors.darkGreen : Colors.lightGreen,
           tabBarIcon: ({color}) => (
             <Ionicons name="md-duplicate-sharp" color={color} size={24} />
           ),

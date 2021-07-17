@@ -11,7 +11,7 @@ const HomeStack = () => {
     <RootStack.Navigator
       headerMode="none"
       initialRouteName="Home"
-      screenOptions={{headerShown: false, animationTypeForReplace: 'pop'}}>
+      screenOptions={{headerShown: false}}>
       <RootStack.Screen name="Home" component={HomeTabs} />
       <RootStack.Screen name="PickImage" component={PickImage} />
     </RootStack.Navigator>

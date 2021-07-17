@@ -8,6 +8,7 @@ import {Results} from '@baronha/react-native-multiple-image-picker';
 
 import {imgRouteProps} from '../types';
 import styles from '../components/styles';
+import Colors from '../colors';
 
 const ModifyScreen = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -18,8 +19,13 @@ const ModifyScreen = () => {
   const images: Results[] = route.params ? route.params.gotImages : [];
 
   return (
-    <ScrollView contentContainerStyle={[css.default, css.centerDiv]}>
-      <SafeAreaView style={[css.default, css.centerDiv]}>
+    <ScrollView
+      contentContainerStyle={[
+        css.default,
+        css.centerDiv,
+        {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter},
+      ]}>
+      <SafeAreaView>
         <Button
           color="blue"
           mode="contained"

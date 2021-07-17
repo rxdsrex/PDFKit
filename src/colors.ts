@@ -8,4 +8,9 @@ export default {
   dark: '#444',
   darker: '#222',
   black: '#000',
+  darkBlue: '#19206b',
+  darkGreen: '#135c5b',
+  lightGreen: '#28c979',
+  lightBlue: '#284fbd',
+  wheatish: '#dfe3af',
 };

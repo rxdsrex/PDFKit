@@ -17,6 +17,7 @@ import MultipleImagePicker, {
 
 import styles from '../components/styles';
 import {renderItemProps, imgRouteProps} from '../types';
+import Colors from '../colors';
 
 const PickImagesScreen = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -78,11 +79,14 @@ const PickImagesScreen = () => {
   };
 
   return (
-    <SafeAreaView style={css.default}>
+    <SafeAreaView
+      style={[
+        css.default,
+        {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter},
+      ]}>
       <Text style={css.textHeading}>Selected Images</Text>
       <View style={css.default}>
         <FlatList
-          style={[css.default]}
           data={images}
           keyExtractor={(item, index) => (item?.filename ?? item?.path) + index}
           renderItem={renderItem}
