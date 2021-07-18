@@ -5,6 +5,16 @@ export interface renderItemProps {
   index?: number;
 }
 
+export interface renderBookItemProps {
+  item: bookProps;
+  index?: number;
+}
+export interface bookProps {
+  id: string;
+  chapterTitle: string;
+  pages: Results[];
+}
+
 export interface imgRouteProps extends RouteProp<ParamListBase, string> {
   params: {
     gotImages: Results[];

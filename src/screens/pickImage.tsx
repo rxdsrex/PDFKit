@@ -1,12 +1,5 @@
 import React, {useState} from 'react';
-import {
-  Text,
-  Dimensions,
-  View,
-  FlatList,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import {Text, Dimensions, View, FlatList, Image, Pressable} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
@@ -42,7 +35,7 @@ const PickImagesScreen = () => {
     setImages(data);
   };
 
-  const renderItem = ({item, index}: renderItemProps) => {
+  const renderItem = ({item}: renderItemProps) => {
     return (
       <View>
         <Image
@@ -52,12 +45,9 @@ const PickImagesScreen = () => {
           }}
           style={css.media}
         />
-        <TouchableOpacity
-          onPress={() => onDelete(item)}
-          activeOpacity={0.9}
-          style={css.buttonDelete}>
-          <Text style={css.titleDelete}>{index}</Text>
-        </TouchableOpacity>
+        <Pressable onPress={() => onDelete(item)} style={css.buttonDelete}>
+          <Text style={css.titleDelete}>x</Text>
+        </Pressable>
       </View>
     );
   };
@@ -72,7 +62,6 @@ const PickImagesScreen = () => {
         selectedColor: '#1e84b0',
       });
       setImages(response);
-      console.log('Images selected');
     } catch (err) {
       console.log(err.message);
     }

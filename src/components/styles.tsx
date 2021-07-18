@@ -12,6 +12,12 @@ const styles = (isDarkMode?: boolean, width: number = 0) => {
       justifyContent: 'flex-start',
       alignItems: 'center',
     },
+    centeredView: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 22,
+    },
     textHeading: {
       paddingTop: '3%',
       fontWeight: 'bold',
@@ -20,9 +26,9 @@ const styles = (isDarkMode?: boolean, width: number = 0) => {
       color: isDarkMode ? Colors.white : Colors.black,
     },
     text: {
-      fontWeight: 'bold',
-      fontSize: 16,
-      color: isDarkMode ? Colors.white : Colors.black,
+      fontSize: 15,
+      textAlign: 'center',
+      color: Colors.white,
     },
     imageView: {
       flex: 1,
@@ -69,6 +75,53 @@ const styles = (isDarkMode?: boolean, width: number = 0) => {
       fontSize: 12,
       color: isDarkMode ? Colors.white : Colors.black,
     },
+    modalView: {
+      margin: 20,
+      backgroundColor: isDarkMode ? Colors.darkBlue : Colors.lightBlue,
+      borderRadius: 20,
+      padding: 35,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+      maxWidth: '90%',
+    },
+    modalButton: {
+      borderRadius: 20,
+      padding: 10,
+      elevation: 2,
+    },
+    modalText: {
+      marginTop: 10,
+      marginBottom: 15,
+      textAlign: 'center',
+      color: Colors.white,
+      maxWidth: '85%',
+    },
+    modalButtonDone: {
+      backgroundColor: 'royalblue',
+      marginLeft: 70,
+    },
+    modalButtonClose: {
+      backgroundColor: '#2196F3',
+      marginRight: 70,
+    },
+    chInput: {
+      height: 40,
+      marginTop: 2,
+      marginBottom: 15,
+      borderWidth: 1,
+      backgroundColor: 'lightslategrey',
+      color: Colors.white,
+      maxWidth: '85%',
+    },
+    inline: {flexDirection: 'row'},
+    selectImagesView: {paddingTop: 10, paddingBottom: 25},
   });
 };
 

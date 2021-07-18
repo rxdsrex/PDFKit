@@ -28,6 +28,7 @@ const HomeTabs = () => {
           ),
           tabBarAccessibilityLabel: 'Create a new PDF',
         }}
+        initialParams={{gotImages: []}}
         component={CreateScreen}
       />
       <Tab.Screen
@@ -40,6 +41,7 @@ const HomeTabs = () => {
           ),
           tabBarAccessibilityLabel: 'Modify an existing PDF',
         }}
+        initialParams={{gotImages: []}}
         component={ModifyScreen}
       />
     </Tab.Navigator>
