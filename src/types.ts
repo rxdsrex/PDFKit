@@ -21,3 +21,15 @@ export interface imgRouteProps extends RouteProp<ParamListBase, string> {
     backScreenName: string;
   };
 }
+
+export interface Results {
+  path: string;
+  filename: string;
+  localIdentifier: string;
+  width: number;
+  height: number;
+  mime: string;
+  type: string;
+  thumbnail?: string;
+  creationDate?: string;
+}

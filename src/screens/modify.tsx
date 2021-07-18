@@ -4,9 +4,8 @@ import {Text, ScrollView} from 'react-native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {Results} from '@baronha/react-native-multiple-image-picker';
 
-import {imgRouteProps} from '../types';
+import {imgRouteProps, Results} from '../types';
 import styles from '../components/styles';
 import Colors from '../colors';
 

@@ -1,15 +1,13 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Text, Dimensions, View, FlatList, Image, Pressable} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import MultipleImagePicker, {
-  Results,
-} from '@baronha/react-native-multiple-image-picker';
+import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 
 import styles from '../components/styles';
-import {renderItemProps, imgRouteProps} from '../types';
+import {renderItemProps, imgRouteProps, Results} from '../types';
 import Colors from '../colors';
 
 const PickImagesScreen = () => {
@@ -24,7 +22,12 @@ const PickImagesScreen = () => {
   const IMAGE_WIDTH = width - 24;
 
   const css = styles(isDarkMode, IMAGE_WIDTH);
-  const backScreenName = route.params ? route.params.backScreenName : 'Create';
+  const [backScreenName, setBackScreenName] = useState('');
+
+  useEffect(() => {
+    setImages(route.params.gotImages);
+    setBackScreenName(route.params.backScreenName);
+  }, [route.params.gotImages, route.params.backScreenName]);
 
   const onDelete = (value: Results) => {
     const data = images.filter(

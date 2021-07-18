@@ -1,24 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, {useState} from 'react';
-import {
-  Text,
-  ScrollView,
-  View,
-  FlatList,
-  Modal,
-  Pressable,
-  TextInput,
-} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {Text, View, FlatList, Modal, Pressable, TextInput} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import styles from '../components/styles';
-import {imgRouteProps, bookProps, renderBookItemProps} from '../types';
-import {Results} from '@baronha/react-native-multiple-image-picker';
+import {imgRouteProps, bookProps, renderBookItemProps, Results} from '../types';
 import Colors from '../colors';
-import {useEffect} from 'react';
 
 const CreateScreen = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -27,22 +18,33 @@ const CreateScreen = () => {
   const route: imgRouteProps = useRoute();
 
   const initBook: bookProps[] = [];
-  let images: Results[] = route.params ? route.params.gotImages : [];
+  let initImages: Results[] = [];
   const [donePicking, setDonePicking] = useState(false);
-  const [dnBtnDisabled, setDoneVisibility] = useState(true);
+  const [dnBtnDisabled, setDnBtnDisabled] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [book, setBook] = useState(initBook);
-  const [chapterTitle, setChapterTitle] = React.useState('');
+  const [chapterTitle, setChapterTitle] = useState('');
+  const [images, setImages] = useState(initImages);
+  const [chapterId, setChapterId] = useState('');
 
   const rem = () => {
     if (donePicking) {
       setModalVisible(!modalVisible);
-      setDoneVisibility(!dnBtnDisabled);
+      if (route.params.gotImages.length || chapterId !== '') {
+        setImages(route.params.gotImages);
+        setDnBtnDisabled(false);
+      }
     }
   };
   useEffect(() => {
     navigation.addListener('focus', rem);
-  }, [dnBtnDisabled, donePicking, modalVisible, navigation, route.name]);
+  }, [
+    dnBtnDisabled,
+    donePicking,
+    modalVisible,
+    navigation,
+    route.params.gotImages,
+  ]);
 
   const onDelete = (value: bookProps) => {
     const data = book.filter(item => item.id && item.id !== value.id);
@@ -51,14 +53,65 @@ const CreateScreen = () => {
 
   const renderItem = ({item}: renderBookItemProps) => {
     return (
-      <View style={[css.default, css.centerDiv]}>
-        <Pressable style={{backgroundColor: 'tomato'}}>
-          <Text>Chapter name: {item.chapterTitle}</Text>
-          <Text>No. of pages: {item.pages.length}</Text>
-        </Pressable>
-        <Pressable onPress={() => onDelete(item)} style={css.buttonDelete}>
-          <Text style={css.titleDelete}>x</Text>
-        </Pressable>
+      <View>
+        <View
+          style={[
+            css.default,
+            css.centerDiv,
+            {marginTop: 15, flexDirection: 'column'},
+          ]}>
+          <Pressable
+            style={{
+              backgroundColor: 'mediumslateblue',
+              minWidth: 350,
+              minHeight: 60,
+              borderRadius: 4,
+            }}>
+            <Text
+              style={[
+                css.text,
+                {
+                  maxWidth: '70%',
+                  textAlign: 'left',
+                  left: 50,
+                  textAlignVertical: 'center',
+                },
+              ]}>
+              <Text style={{fontWeight: 'bold'}}>Title</Text>
+              <Text>: {item.chapterTitle}</Text>
+            </Text>
+            <Text
+              style={[
+                css.text,
+                {
+                  maxWidth: '90%',
+                  textAlign: 'left',
+                  left: 50,
+                  textAlignVertical: 'center',
+                },
+              ]}>
+              <Text style={{fontWeight: 'bold'}}>Pages</Text>
+              <Text>: {item.pages.length}</Text>
+            </Text>
+          </Pressable>
+          <Pressable onPress={() => onDelete(item)} style={css.buttonDelete}>
+            <Ionicons name="trash-outline" color="white" size={26} />
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              setDonePicking(true);
+              setImages(item.pages);
+              setChapterTitle(item.chapterTitle);
+              setChapterId(item.id);
+              navigation.navigate('PickImage', {
+                gotImages: item.pages,
+                backScreenName: 'Create',
+              });
+            }}
+            style={css.buttonEdit}>
+            <Ionicons name="create-outline" color="white" size={26} />
+          </Pressable>
+        </View>
       </View>
     );
   };
@@ -70,8 +123,8 @@ const CreateScreen = () => {
         css.centerDiv,
         {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter},
       ]}>
-      <ScrollView
-        contentContainerStyle={[
+      <View
+        style={[
           css.default,
           css.centerDiv,
           {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter},
@@ -84,7 +137,6 @@ const CreateScreen = () => {
             style={css.modalButtonClose}
             onPress={function () {
               setModalVisible(!modalVisible);
-              // navigation.navigate('PickImage', {backScreenName: 'Create'});
             }}>
             <Text style={css.text}>Add Chapter</Text>
           </Button>
@@ -99,14 +151,14 @@ const CreateScreen = () => {
             <Text style={css.text}>Create PDF</Text>
           </Button>
         </View>
-      </ScrollView>
-      <FlatList
-        style={{maxWidth: '85%'}}
-        data={book}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        numColumns={1}
-      />
+        <FlatList
+          style={{maxWidth: '85%'}}
+          data={book}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          numColumns={1}
+        />
+      </View>
       <Modal
         animationType="fade"
         transparent={true}
@@ -136,9 +188,16 @@ const CreateScreen = () => {
                 onPress={function () {
                   setModalVisible(!modalVisible);
                   setDonePicking(true);
-                  navigation.navigate('PickImage', {backScreenName: 'Create'});
+                  navigation.navigate('PickImage', {
+                    gotImages: images,
+                    backScreenName: 'Create',
+                  });
                 }}>
-                <Text style={css.text}>Add Images</Text>
+                <Text style={css.text}>
+                  {images.length > 0
+                    ? images.length + ' images selected'
+                    : 'Add Images'}
+                </Text>
               </Button>
             </View>
             <View style={css.inline}>
@@ -160,7 +219,30 @@ const CreateScreen = () => {
                 ]}
                 disabled={dnBtnDisabled}
                 onPress={() => {
-                  if (images.length) {
+                  if (images.length > 0 && chapterId !== '') {
+                    const newBook = book.map((chapter, index) => {
+                      if (chapter.id === chapterId) {
+                        chapter.pages = images;
+                        chapter.chapterTitle =
+                          chapterTitle === '' ? index + 1 + '' : chapterTitle;
+                      }
+                      return chapter;
+                    });
+                    setBook(newBook);
+                    setChapterId('');
+                    setDnBtnDisabled(true);
+                    setDonePicking(false);
+                    setImages([]);
+                  } else if (images.length === 0 && chapterId !== '') {
+                    const data = book.filter(
+                      item => item.id && item.id !== chapterId,
+                    );
+                    setBook(data);
+                    setChapterId('');
+                    setDnBtnDisabled(true);
+                    setDonePicking(false);
+                    setImages([]);
+                  } else if (images.length > 0) {
                     const chapterData: bookProps = {
                       id: Math.random().toString(36).slice(2),
                       chapterTitle:
@@ -170,9 +252,9 @@ const CreateScreen = () => {
                       pages: images,
                     };
                     setBook([...book, chapterData]);
-                    setDoneVisibility(!dnBtnDisabled);
+                    setDnBtnDisabled(true);
                     setDonePicking(false);
-                    images = [];
+                    setImages([]);
                   }
                   setChapterTitle('');
                   setModalVisible(!modalVisible);
