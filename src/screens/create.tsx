@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState, useEffect} from 'react';
 import {Text, View, FlatList, Modal, Pressable, TextInput} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
@@ -6,6 +5,9 @@ import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
+import {NativeModules} from 'react-native';
+const {FilesystemNativeModule} = NativeModules;
 
 import styles from '../components/styles';
 import {imgRouteProps, bookProps, renderBookItemProps, Results} from '../types';
@@ -18,7 +20,7 @@ const CreateScreen = () => {
   const route: imgRouteProps = useRoute();
 
   const initBook: bookProps[] = [];
-  let initImages: Results[] = [];
+  const initImages: Results[] = [];
   const [donePicking, setDonePicking] = useState(false);
   const [dnBtnDisabled, setDnBtnDisabled] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -28,7 +30,7 @@ const CreateScreen = () => {
   const [chapterId, setChapterId] = useState('');
 
   useEffect(() => {
-    navigation.addListener('focus', () => {
+    function handleModalVisibility() {
       if (donePicking) {
         setModalVisible(!modalVisible);
         if (route.params.gotImages.length || chapterId !== '') {
@@ -36,8 +38,14 @@ const CreateScreen = () => {
           setDnBtnDisabled(false);
         }
       }
-    });
+    }
+    navigation.addListener('focus', handleModalVisibility);
+
+    return function cleanup() {
+      navigation.removeListener('blur', handleModalVisibility);
+    };
   }, [
+    chapterId,
     dnBtnDisabled,
     donePicking,
     modalVisible,
@@ -134,7 +142,7 @@ const CreateScreen = () => {
             mode="contained"
             uppercase={false}
             style={css.modalButtonClose}
-            onPress={function () {
+            onPress={() => {
               setModalVisible(!modalVisible);
             }}>
             <Text style={css.text}>Add Chapter</Text>
@@ -144,8 +152,15 @@ const CreateScreen = () => {
             mode="contained"
             style={css.modalButtonDone}
             uppercase={false}
-            onPress={function () {
+            onPress={async () => {
               console.log('createPdf');
+              try {
+                const path =
+                  await FilesystemNativeModule.getInternalStorageRoot();
+                console.log(path);
+              } catch (err) {
+                console.error(err.message);
+              }
             }}>
             <Text style={css.text}>Create PDF</Text>
           </Button>
@@ -184,7 +199,7 @@ const CreateScreen = () => {
                 color="teal"
                 mode="contained"
                 uppercase={false}
-                onPress={function () {
+                onPress={() => {
                   setModalVisible(!modalVisible);
                   setDonePicking(true);
                   navigation.navigate('PickImage', {
