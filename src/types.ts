@@ -1,4 +1,3 @@
-import {Results} from '@baronha/react-native-multiple-image-picker';
 import {ParamListBase, RouteProp} from '@react-navigation/native';
 export interface renderItemProps {
   item: Results;
@@ -25,10 +24,12 @@ export interface imgRouteProps extends RouteProp<ParamListBase, string> {
 export interface Results {
   path: string;
   filename: string;
+  realPath: string;
+  parentFolderName: string;
   localIdentifier: string;
   width: number;
   height: number;
-  mime: string;
+  mine: string;
   type: string;
   thumbnail?: string;
   creationDate?: string;

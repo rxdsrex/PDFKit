@@ -27,17 +27,16 @@ const CreateScreen = () => {
   const [images, setImages] = useState(initImages);
   const [chapterId, setChapterId] = useState('');
 
-  const rem = () => {
-    if (donePicking) {
-      setModalVisible(!modalVisible);
-      if (route.params.gotImages.length || chapterId !== '') {
-        setImages(route.params.gotImages);
-        setDnBtnDisabled(false);
-      }
-    }
-  };
   useEffect(() => {
-    navigation.addListener('focus', rem);
+    navigation.addListener('focus', () => {
+      if (donePicking) {
+        setModalVisible(!modalVisible);
+        if (route.params.gotImages.length || chapterId !== '') {
+          setImages(route.params.gotImages);
+          setDnBtnDisabled(false);
+        }
+      }
+    });
   }, [
     dnBtnDisabled,
     donePicking,
