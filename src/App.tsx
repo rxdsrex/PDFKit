@@ -1,13 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
 import React, {useEffect} from 'react';
 import nodejs from 'nodejs-mobile-react-native';
 
@@ -23,9 +13,10 @@ const App = () => {
     };
     nodejs.start('main.js', {redirectOutputToLogcat: false});
     nodejs.channel.addListener('message', listener);
+    nodejs.channel.send('haha');
 
     // returned function will be called on component unmount
-    return () => {
+    return function cleanup() {
       nodejs.channel.removeListener('message', listener);
     };
   }, []);

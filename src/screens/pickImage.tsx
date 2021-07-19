@@ -5,6 +5,7 @@ import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import styles from '../components/styles';
 import {renderItemProps, imgRouteProps, Results} from '../types';
@@ -48,8 +49,8 @@ const PickImagesScreen = () => {
           }}
           style={css.media}
         />
-        <Pressable onPress={() => onDelete(item)} style={css.buttonDelete}>
-          <Text style={css.titleDelete}>x</Text>
+        <Pressable onPress={() => onDelete(item)} style={css.imageButtonDelete}>
+          <Ionicons name="close-circle" color="white" size={20} />
         </Pressable>
       </View>
     );
@@ -77,7 +78,10 @@ const PickImagesScreen = () => {
         {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter},
       ]}>
       <Text style={css.textHeading}>Selected Images</Text>
-      <View style={css.default}>
+      <View style={styles(isDarkMode, 0, images.length).addImagesTextView}>
+        <Text style={css.addImageText}>Add images</Text>
+      </View>
+      <View style={styles(isDarkMode, 0, images.length).imageView}>
         <FlatList
           data={images}
           keyExtractor={(item, index) => (item?.filename ?? item?.path) + index}
@@ -86,6 +90,14 @@ const PickImagesScreen = () => {
         />
       </View>
       <View style={css.selectView}>
+        <Button
+          style={css.buttonAdd}
+          color="green"
+          mode="contained"
+          uppercase={false}
+          onPress={getImages}>
+          <Text style={css.text}>Add</Text>
+        </Button>
         <Button
           style={css.buttonClose}
           color="red"
@@ -97,14 +109,6 @@ const PickImagesScreen = () => {
             });
           }}>
           <Text style={css.text}>Done</Text>
-        </Button>
-        <Button
-          style={css.buttonAdd}
-          color="green"
-          mode="contained"
-          uppercase={false}
-          onPress={getImages}>
-          <Text style={css.text}>Add</Text>
         </Button>
       </View>
     </SafeAreaView>

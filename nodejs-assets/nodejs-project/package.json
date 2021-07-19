@@ -12,5 +12,8 @@
     "pdf"
   ],
   "author": "Rajnarayan Dutta",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "pdf-lib": "^1.16.0"
+  }
 }

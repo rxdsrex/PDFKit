@@ -1,12 +1,16 @@
+/* eslint-disable no-bitwise */
 // Rename this sample file to main.js to use on your project.
 // The main.js file will be overwritten in updates/reinstalls.
 
-var rn_bridge = require('rn-bridge');
+const rnBridge = require('rn-bridge');
+// const fs = require('fs');
+// const os = require('os');
+// const path = require('path');
 
 // Echo every message received from react-native.
-rn_bridge.channel.on('message', msg => {
-  rn_bridge.channel.send(msg);
+rnBridge.channel.on('message', msg => {
+  rnBridge.channel.send(msg);
 });
 
 // Inform react-native node is initialized.
-rn_bridge.channel.send('Node was initialized.');
+rnBridge.channel.send('Node was initialized.');

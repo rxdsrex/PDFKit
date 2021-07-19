@@ -15,12 +15,14 @@ const theme = {
   },
 };
 
-export default function Main() {
+const Main = () => {
   return (
     <PaperProvider theme={theme}>
       <App />
     </PaperProvider>
   );
-}
+};
+
+export default Main;
 
 AppRegistry.registerComponent(appName, () => Main);

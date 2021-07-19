@@ -1,7 +1,11 @@
 import {StyleSheet} from 'react-native';
 import Colors from '../colors';
 
-const styles = (isDarkMode?: boolean, width: number = 0) => {
+const styles = (
+  isDarkMode?: boolean,
+  width: number = 0,
+  imagesLength: number = 0,
+) => {
   return StyleSheet.create({
     default: {
       flex: 1,
@@ -30,11 +34,24 @@ const styles = (isDarkMode?: boolean, width: number = 0) => {
       textAlign: 'center',
       color: Colors.white,
     },
+    addImageText: {
+      fontSize: 18,
+      textAlign: 'center',
+      color: Colors.white,
+      width: 350,
+    },
+    addImagesTextView: {
+      display: imagesLength > 0 ? 'none' : 'flex',
+      alignItems: 'center',
+      flex: 1,
+      justifyContent: 'center',
+    },
     imageView: {
       flex: 1,
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      paddingVertical: 24,
+      color: isDarkMode ? Colors.white : Colors.black,
+      justifyContent: 'center',
+      alignItems: 'center',
+      display: imagesLength > 0 ? 'flex' : 'none',
     },
     media: {
       marginLeft: 6,
@@ -49,17 +66,32 @@ const styles = (isDarkMode?: boolean, width: number = 0) => {
       alignItems: 'center',
     },
     selectView: {
+      left: 2,
+      right: 2,
       flexDirection: 'row',
       flexWrap: 'wrap',
       justifyContent: 'space-between',
     },
     buttonClose: {
+      paddingVertical: 5,
       alignSelf: 'flex-end',
-      paddingBottom: '3%',
+      width: (width + 22) / 2,
     },
     buttonAdd: {
+      paddingVertical: 5,
       alignSelf: 'flex-end',
-      paddingBottom: '3%',
+      width: (width + 22) / 2,
+    },
+    imageButtonDelete: {
+      paddingHorizontal: 5,
+      paddingVertical: 5,
+      position: 'absolute',
+      textAlign: 'center',
+      opacity: 0.9,
+      top: 2,
+      right: 2,
+      backgroundColor: 'salmon',
+      borderRadius: 4,
     },
     buttonDelete: {
       paddingHorizontal: 8,
@@ -78,11 +110,6 @@ const styles = (isDarkMode?: boolean, width: number = 0) => {
       left: 2,
       backgroundColor: 'mediumseagreen',
       borderRadius: 4,
-    },
-    titleDelete: {
-      fontWeight: 'bold',
-      fontSize: 12,
-      color: isDarkMode ? Colors.white : Colors.black,
     },
     modalView: {
       margin: 20,
