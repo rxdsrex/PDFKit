@@ -1,21 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import {
-  Text,
-  View,
-  FlatList,
-  Modal,
-  Pressable,
-  TextInput,
-  PermissionsAndroid,
-} from 'react-native';
+import {Text, View, FlatList, Modal, Pressable, TextInput} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import {NativeModules} from 'react-native';
-const {FilesystemNativeModule} = NativeModules;
 
 import styles from '../components/styles';
 import {imgRouteProps, bookProps, renderBookItemProps, Results} from '../types';
@@ -51,7 +40,7 @@ const CreateScreen = () => {
     navigation.addListener('focus', handleModalVisibility);
 
     return function cleanup() {
-      navigation.removeListener('blur', handleModalVisibility);
+      navigation.removeListener('focus', handleModalVisibility);
     };
   }, [
     chapterId,
@@ -161,100 +150,10 @@ const CreateScreen = () => {
             mode="contained"
             style={css.modalButtonDone}
             uppercase={false}
+            disabled={images.length > 0 ? false : true}
             onPress={async () => {
+              // TODO Add logic
               console.log('createPdf');
-              const requestStoragePermission = () => {
-                return new Promise<void>(async (resolve, reject) => {
-                  try {
-                    const granted = await PermissionsAndroid.requestMultiple([
-                      PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-                      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-                    ]);
-
-                    if (
-                      granted['android.permission.READ_EXTERNAL_STORAGE'] ===
-                      PermissionsAndroid.RESULTS.GRANTED
-                    ) {
-                      console.log('READ_EXTERNAL_STORAGE permission provided');
-                    } else {
-                      console.log('READ_EXTERNAL_STORAGE permission denied');
-                    }
-
-                    if (
-                      granted['android.permission.WRITE_EXTERNAL_STORAGE'] ===
-                      PermissionsAndroid.RESULTS.GRANTED
-                    ) {
-                      console.log('WRITE_EXTERNAL_STORAGE permission provided');
-                    } else {
-                      console.log('WRITE_EXTERNAL_STORAGE permission denied');
-                    }
-
-                    resolve();
-                  } catch (err) {
-                    console.warn(err);
-                    reject(err);
-                  }
-                });
-              };
-
-              await requestStoragePermission();
-              try {
-                const treeUri =
-                  await FilesystemNativeModule.askPermissionForStorage();
-                const docId =
-                  await FilesystemNativeModule.resolveContentUriToPath(treeUri);
-
-                const obj = {
-                  treeUri: treeUri,
-                  docId: docId,
-                };
-                console.warn(JSON.stringify(obj, null, 2));
-              } catch (err) {
-                console.warn(err.message);
-              }
-
-              /* try {
-                const fileObj = {
-                  name: 'multiply.js',
-                  mime: 'text/javascript',
-                  content: `// ES5 syntax
-                  var multiply = function (x, y) {
-                      return x * y;
-                  };
-
-                  // ES6 arrow function
-                  var multiply = (x, y) => { return x * y; };
-
-                  // Or even simpler
-                  var multiply = (x, y) => x * y;`,
-                };
-                let destFolderUri = '';
-                nodejs.start('main.js', {redirectOutputToLogcat: false});
-                nodejs.channel.addListener('message', async srcPath => {
-                  if (!srcPath.startsWith('/')) {
-                    console.warn(srcPath);
-                  } else {
-                    try {
-                      await requestStoragePermission();
-                      const treeUri =
-                        await FilesystemNativeModule.askPermissionForStorage();
-                      console.warn(treeUri);
-                      // destFolderUri = FilesystemNativeModule.copyFileFromToPath(
-                      //   srcPath,
-                      //   fileObj.name,
-                      //   destFolderUri,
-                      //   fileObj.mime,
-                      //   treeUri,
-                      // );
-                    } catch (err) {
-                      console.warn(err.message);
-                    }
-                  }
-                });
-                nodejs.channel.post('message', JSON.stringify(fileObj));
-              } catch (err) {
-                console.warn(err.message);
-              } */
             }}>
             <Text style={css.text}>Create PDF</Text>
           </Button>
