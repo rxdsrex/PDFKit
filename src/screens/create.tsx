@@ -7,9 +7,14 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import styles from '../components/styles';
-import {imgRouteProps, bookProps, renderBookItemProps, Results} from '../types';
+import {
+  imgRouteProps,
+  chapterProps,
+  renderChapterProps,
+  Results,
+} from '../types';
 import Colors from '../colors';
-// import nodejs from 'nodejs-mobile-react-native';
+import {createPdf} from '../services/pdfNode';
 
 const CreateScreen = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -17,12 +22,12 @@ const CreateScreen = () => {
   const navigation = useNavigation();
   const route: imgRouteProps = useRoute();
 
-  const initBook: bookProps[] = [];
+  const initChapters: chapterProps[] = [];
   const initImages: Results[] = [];
   const [donePicking, setDonePicking] = useState(false);
   const [dnBtnDisabled, setDnBtnDisabled] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [book, setBook] = useState(initBook);
+  const [chapters, setChapters] = useState(initChapters);
   const [chapterTitle, setChapterTitle] = useState('');
   const [images, setImages] = useState(initImages);
   const [chapterId, setChapterId] = useState('');
@@ -51,12 +56,12 @@ const CreateScreen = () => {
     route.params.gotImages,
   ]);
 
-  const onDelete = (value: bookProps) => {
-    const data = book.filter(item => item.id && item.id !== value.id);
-    setBook(data);
+  const onDelete = (value: chapterProps) => {
+    const data = chapters.filter(item => item.id && item.id !== value.id);
+    setChapters(data);
   };
 
-  const renderItem = ({item}: renderBookItemProps) => {
+  const renderItem = ({item}: renderChapterProps) => {
     return (
       <View>
         <View
@@ -150,17 +155,19 @@ const CreateScreen = () => {
             mode="contained"
             style={css.modalButtonDone}
             uppercase={false}
-            disabled={images.length > 0 ? false : true}
+            disabled={chapters.length > 0 ? false : true}
             onPress={async () => {
               // TODO Add logic
               console.log('createPdf');
+              const resp = await createPdf(chapters);
+              console.log(resp);
             }}>
             <Text style={css.text}>Create PDF</Text>
           </Button>
         </View>
         <FlatList
           style={{maxWidth: '85%'}}
-          data={book}
+          data={chapters}
           keyExtractor={item => item.id}
           renderItem={renderItem}
           numColumns={1}
@@ -227,7 +234,7 @@ const CreateScreen = () => {
                 disabled={dnBtnDisabled}
                 onPress={() => {
                   if (images.length > 0 && chapterId !== '') {
-                    const newBook = book.map((chapter, index) => {
+                    const newBook = chapters.map((chapter, index) => {
                       if (chapter.id === chapterId) {
                         chapter.pages = images;
                         chapter.chapterTitle =
@@ -235,30 +242,30 @@ const CreateScreen = () => {
                       }
                       return chapter;
                     });
-                    setBook(newBook);
+                    setChapters(newBook);
                     setChapterId('');
                     setDnBtnDisabled(true);
                     setDonePicking(false);
                     setImages([]);
                   } else if (images.length === 0 && chapterId !== '') {
-                    const data = book.filter(
+                    const data = chapters.filter(
                       item => item.id && item.id !== chapterId,
                     );
-                    setBook(data);
+                    setChapters(data);
                     setChapterId('');
                     setDnBtnDisabled(true);
                     setDonePicking(false);
                     setImages([]);
                   } else if (images.length > 0) {
-                    const chapterData: bookProps = {
+                    const chapterData: chapterProps = {
                       id: Math.random().toString(36).slice(2),
                       chapterTitle:
                         chapterTitle === ''
-                          ? book.length + 1 + ''
+                          ? chapters.length + 1 + ''
                           : chapterTitle,
                       pages: images,
                     };
-                    setBook([...book, chapterData]);
+                    setChapters([...chapters, chapterData]);
                     setDnBtnDisabled(true);
                     setDonePicking(false);
                     setImages([]);

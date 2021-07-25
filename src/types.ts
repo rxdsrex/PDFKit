@@ -4,11 +4,11 @@ export interface renderItemProps {
   index?: number;
 }
 
-export interface renderBookItemProps {
-  item: bookProps;
+export interface renderChapterProps {
+  item: chapterProps;
   index?: number;
 }
-export interface bookProps {
+export interface chapterProps {
   id: string;
   chapterTitle: string;
   pages: Results[];

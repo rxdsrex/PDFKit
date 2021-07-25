@@ -5,13 +5,15 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {Alert, BackHandler, NativeModules} from 'react-native';
-const {FilesystemNativeModule} = NativeModules;
+import nodejs from 'nodejs-mobile-react-native';
 
 import HomeStack from './components/homeStack';
 import {
   requestCameraPermission,
   requestStoragePermission,
 } from './services/permissions';
+
+const {FilesystemNativeModule} = NativeModules;
 
 const getCameraPermission = async () => {
   await AsyncStorage.setItem('CameraPermitted', 'false');
@@ -86,6 +88,10 @@ const App = () => {
             text: 'OK',
             onPress: async () => {
               await getAccessToFolder();
+              nodejs.start('main.js', {redirectOutputToLogcat: false});
+              nodejs.channel.addListener('message', msg => {
+                console.warn(msg);
+              });
             },
           },
         ],
