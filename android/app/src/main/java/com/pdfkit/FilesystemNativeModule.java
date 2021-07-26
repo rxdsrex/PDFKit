@@ -1,6 +1,7 @@
 package com.pdfkit;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.UriPermission;
 import android.net.Uri;
@@ -450,11 +451,19 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
     public void deleteFileByPath(String inputPath, String inputFileName,
                                  Promise promise) {
         try {
-            File inputFile = new File(inputPath + "/" + inputFileName);
+            String path;
+            if(inputFileName.equals("")) {
+                path = inputPath;
+            } else {
+                String separator = inputPath.endsWith("/") ? "" : "/";
+                path = inputPath + separator + inputFileName;
+            }
+            File inputFile = new File(path);
             if (inputFile.exists()) {
                 // delete the file
                 boolean done = inputFile.delete();
                 promise.resolve(done);
+                return;
             }
             promise.resolve(false);
         } catch (Exception e) {
@@ -476,7 +485,36 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    void askPermissionForStorage(String docUriStr, final Promise promise) {
+    public void getCacheDirectoryPath(Promise promise) {
+        try {
+            Activity currentActivity = getCurrentActivity();
+            if (currentActivity == null) {
+                String msg = "Activity doesn't exist";
+                promise.reject(E_ACTIVITY_DOES_NOT_EXIST, msg, new Exception(msg));
+                return;
+            }
+
+            String cacheDirPath;
+            File externalCacheDir = currentActivity.getExternalCacheDir();
+            if (externalCacheDir != null && externalCacheDir.exists()) {
+                cacheDirPath = externalCacheDir.getAbsolutePath();
+            } else {
+                File cacheDir = currentActivity.getCacheDir();
+                if (cacheDir != null && cacheDir.exists()) {
+                    cacheDirPath = cacheDir.getAbsolutePath();
+                } else {
+                    promise.reject("404", "Cache directory not found");
+                    return;
+                }
+            }
+            promise.resolve(cacheDirPath);
+        } catch (Exception e) {
+            promise.reject("500", e.getMessage(), e);
+        }
+    }
+
+    @ReactMethod
+    public void askPermissionForStorage(String docUriStr, final Promise promise) {
         try {
             Activity currentActivity = getCurrentActivity();
 
@@ -505,6 +543,27 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             safPickerPromise.reject(E_FAILED_TO_SHOW_PICKER, e.getMessage(), e);
             safPickerPromise = null;
+        }
+    }
+
+    @ReactMethod
+    public void openDocumentInChosenApp(String documentUriStr, Promise promise) {
+        Activity currentActivity = getCurrentActivity();
+        if (currentActivity == null) {
+            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+            return;
+        }
+
+        Uri documentUri = Uri.parse(documentUriStr);
+        Intent docIntent = new Intent(Intent.ACTION_VIEW);
+        docIntent.setDataAndType(documentUri, "application/pdf");
+        docIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        try{
+            currentActivity.startActivity(docIntent);
+            promise.resolve(true);
+        } catch (ActivityNotFoundException e) {
+            promise.reject("500", e.getMessage(), e);
         }
     }
 }

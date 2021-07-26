@@ -1,5 +1,14 @@
 import React, {useState, useEffect} from 'react';
-import {Text, View, FlatList, Modal, Pressable, TextInput} from 'react-native';
+import {
+  Text,
+  View,
+  FlatList,
+  Modal,
+  Pressable,
+  TextInput,
+  ToastAndroid,
+  NativeModules,
+} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
@@ -16,6 +25,8 @@ import {
 import Colors from '../colors';
 import {createPdf} from '../services/pdfNode';
 
+const {FilesystemNativeModule} = NativeModules;
+
 const CreateScreen = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const css = styles(isDarkMode);
@@ -31,6 +42,8 @@ const CreateScreen = () => {
   const [chapterTitle, setChapterTitle] = useState('');
   const [images, setImages] = useState(initImages);
   const [chapterId, setChapterId] = useState('');
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [pdfFileName, setPdfFileName] = useState('');
 
   useEffect(() => {
     function handleModalVisibility() {
@@ -157,13 +170,65 @@ const CreateScreen = () => {
             uppercase={false}
             disabled={chapters.length > 0 ? false : true}
             onPress={async () => {
-              // TODO Add logic
-              console.log('createPdf');
-              const resp = await createPdf(chapters);
-              console.log(resp);
+              setCreateModalVisible(true);
             }}>
-            <Text style={css.text}>Create PDF</Text>
+            <Text style={css.text}>Create</Text>
           </Button>
+          <View>
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={createModalVisible}
+              onRequestClose={() => {
+                setCreateModalVisible(false);
+                setPdfFileName('');
+              }}>
+              <View style={css.centeredView}>
+                <View style={css.modalView}>
+                  <View style={css.inline}>
+                    <Text style={css.modalText}>Filename: </Text>
+                    <TextInput
+                      style={css.chInput}
+                      value={pdfFileName}
+                      onChangeText={setPdfFileName}
+                      multiline={false}
+                      placeholderTextColor="navajowhite"
+                      placeholder="Enter the PDF filename"
+                      defaultValue=""
+                    />
+                  </View>
+                  <View style={css.selectImagesView}>
+                    <Button
+                      color="teal"
+                      mode="contained"
+                      uppercase={false}
+                      onPress={async () => {
+                        try {
+                          setCreateModalVisible(false);
+                          setPdfFileName('');
+                          const docUri = await createPdf(
+                            chapters,
+                            pdfFileName + '.pdf',
+                          );
+                          ToastAndroid.show(
+                            'PDF created successfully!',
+                            ToastAndroid.SHORT,
+                          );
+                          await FilesystemNativeModule.openDocumentInChosenApp(
+                            docUri,
+                          );
+                          setChapters([]);
+                        } catch (err) {
+                          console.warn(err.message);
+                        }
+                      }}>
+                      <Text style={css.text}>Create PDF</Text>
+                    </Button>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+          </View>
         </View>
         <FlatList
           style={{maxWidth: '85%'}}

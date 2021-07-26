@@ -1,16 +1,19 @@
-// Rename this sample file to main.js to use on your project.
-// The main.js file will be overwritten in updates/reinstalls.
-
 const rnBridge = require('rn-bridge');
-// const fs = require('fs');
-// const os = require('os');
-// const path = require('path');
+const createPdf = require('./createPdf');
+const {join, normalize} = require('path');
 
-rnBridge.channel.on('createPdf', chapters => {
-  const ids = chapters.map(chapter => {
-    return chapter.id;
-  });
-  rnBridge.channel.post('onCreatePdfDone', ids);
+rnBridge.channel.on('createPdf', async (chapters, cacheDir, filename) => {
+  try {
+    const pdfFileLocation = normalize(join(cacheDir, filename));
+    const created = await createPdf(pdfFileLocation, chapters);
+    if (created) {
+      rnBridge.channel.post('onCreatePdfDone', pdfFileLocation);
+    } else {
+      rnBridge.channel.post('onCreatePdfDone', '');
+    }
+  } catch (err) {
+    rnBridge.channel.post('onCreatePdfError', err);
+  }
 });
 
 // Inform react-native node is initialized.
