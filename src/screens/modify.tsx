@@ -10,7 +10,7 @@ import {imgRouteProps, chapterProps, Results} from '../types';
 import Colors from '../colors';
 
 import AddChapterModal from '../components/addChapterModal';
-import CreatePdfModal from '../components/createPdfModal';
+import ModifyPdfModal from '../components/modifyPdfModal';
 import ChapterList from '../components/chapterList';
 
 const ModifyScreen = () => {
@@ -29,7 +29,7 @@ const ModifyScreen = () => {
   const [images, setImages] = useState(initImages);
   const [chapterId, setChapterId] = useState('');
   const [createModalVisible, setCreateModalVisible] = useState(false);
-  const [pdfFileName, setPdfFileName] = useState('');
+  const [inputPdfFilePath, setInputPdfFilePath] = useState('');
 
   useEffect(() => {
     function handleModalVisibility() {
@@ -94,13 +94,13 @@ const ModifyScreen = () => {
             <Text style={css.text}>Create</Text>
           </Button>
           <View>
-            <CreatePdfModal
+            <ModifyPdfModal
               chapters={chapters}
               createModalVisible={createModalVisible}
-              pdfFileName={pdfFileName}
+              inputPdfFilePath={inputPdfFilePath}
               setChapters={setChapters}
               setCreateModalVisible={setCreateModalVisible}
-              setPdfFileName={setPdfFileName}
+              setInputPdfFilePath={setInputPdfFilePath}
             />
           </View>
         </View>

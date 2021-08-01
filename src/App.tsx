@@ -3,6 +3,7 @@ import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {LogBox} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import nodejs from 'nodejs-mobile-react-native';
 
@@ -19,16 +20,19 @@ LogBox.ignoreLogs([
 
 const App = () => {
   useEffect(() => {
-    async function getAccess() {
+    async function getAccessNStartNode() {
       await getCameraPermission();
       await getStoragePermission();
       await setStorageTreeUri();
+      await AsyncStorage.setItem('nodeInit', 'false');
+      nodejs.start('main.js', {redirectOutputToLogcat: false});
+      nodejs.channel.addListener('message', async msg => {
+        if (msg === 'NodeInit') {
+          await AsyncStorage.setItem('nodeInit', 'true');
+        }
+      });
     }
-    getAccess();
-    nodejs.start('main.js', {redirectOutputToLogcat: false});
-    nodejs.channel.addListener('message', msg => {
-      console.warn(msg);
-    });
+    getAccessNStartNode();
   }, []);
 
   return (

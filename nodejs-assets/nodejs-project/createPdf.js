@@ -11,7 +11,6 @@ const {addImage, readFile, writeFile} = require('./utils');
  * @function
  * @param {string} pdfFileLocation location where the PDF file will be created
  * @param {import('../../src/types').chapterProps[]} chapters Array of Chapters
- * @param {string} chapterName Name of the chapter
  * @return {Promise<void>} base64 output of the pdf
  */
 const createPdf = (pdfFileLocation, chapters) => {

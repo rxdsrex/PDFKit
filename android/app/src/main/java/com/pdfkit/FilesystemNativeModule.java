@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.UriPermission;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.FileUtils;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
@@ -34,14 +36,18 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.List;
 
+
 public class FilesystemNativeModule extends ReactContextBaseJavaModule {
-    private static final int REQUEST_CODE = 12123;
+    private static final int OPEN_TREE_REQUEST_CODE = 8733;
+    private static final int OPEN_FILE_REQUEST_CODE = 3453;
+
     private static final String E_ACTIVITY_DOES_NOT_EXIST =
             "E_ACTIVITY_DOES_NOT_EXIST";
     private static final String E_PICKER_CANCELLED = "E_PICKER_CANCELLED";
     private static final String E_FAILED_TO_SHOW_PICKER =
             "E_FAILED_TO_SHOW_PICKER";
     private static final String E_NO_FOLDER_DATA_FOUND = "E_NO_FOLDER_DATA_FOUND";
+    private static final String E_NO_FILE_DATA_FOUND = "E_NO_FILE_DATA_FOUND";
     private static final String E_ROOT_FOLDER_NOT_ALLOWED =
             "E_ROOT_FOLDER_NOT_ALLOWED";
 
@@ -61,7 +67,7 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
                     @Override
                     public void onActivityResult(Activity activity, int requestCode,
                                                  int resultCode, Intent intent) {
-                        if (requestCode == REQUEST_CODE) {
+                        if (requestCode == OPEN_TREE_REQUEST_CODE) {
                             if (safPickerPromise != null) {
                                 if (resultCode == Activity.RESULT_CANCELED) {
                                     safPickerPromise.resolve(E_PICKER_CANCELLED);
@@ -94,6 +100,25 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
                                         }
                                     } else {
                                         safPickerPromise.reject("", "Intent is null");
+                                    }
+                                } else {
+                                    safPickerPromise.reject("500", "Unhandled activity result");
+                                }
+                            }
+                        } else if (requestCode == OPEN_FILE_REQUEST_CODE) {
+                            if (safPickerPromise != null) {
+                                if (resultCode == Activity.RESULT_CANCELED) {
+                                    safPickerPromise.resolve(E_PICKER_CANCELLED);
+                                } else if (resultCode == Activity.RESULT_OK) {
+                                    if (intent != null) {
+                                        // This is the uri of the file that user has selected
+                                        Uri fileUri = intent.getData();
+                                        if (fileUri != null) {
+                                            // Resolve with Content Uri of the selected file
+                                            safPickerPromise.resolve(fileUri.toString());
+                                        }
+                                    } else {
+                                        safPickerPromise.resolve(E_NO_FILE_DATA_FOUND);
                                     }
                                 } else {
                                     safPickerPromise.reject("500", "Unhandled activity result");
@@ -157,6 +182,27 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
         }
     }
 
+    public String getFileName(Uri uri, Activity currentActivity) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            try (Cursor cursor = currentActivity.getContentResolver().query(
+                    uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(
+                            cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
     @ReactMethod
     public void copyNResolveFilePath(String inputUriStr, Promise promise) {
         Uri inputFileUri = Uri.parse(inputUriStr);
@@ -186,8 +232,14 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
                 }
             }
 
+            String fileName = getFileName(inputFileUri, currentActivity);
+            if (fileName == null || fileName.equals("")) {
+                promise.reject("500", "Couldn't resolve file name from Uri");
+                return;
+            }
+
             String separator = cacheDirPath.endsWith("/") ? "" : "/";
-            String filePath = cacheDirPath + separator + "workingFile.pdf";
+            String filePath = cacheDirPath + separator + fileName;
 
             File fDelete = new File(filePath);
             if (fDelete.exists()) {
@@ -448,7 +500,7 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
                                  Promise promise) {
         try {
             String path;
-            if(inputFileName.equals("")) {
+            if (inputFileName.equals("")) {
                 path = inputPath;
             } else {
                 String separator = inputPath.endsWith("/") ? "" : "/";
@@ -528,14 +580,14 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
                     Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION |
                     Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
 
-            if(!docUriStr.equals("")) {
+            if (!docUriStr.equals("")) {
                 Uri docFolderUri = Uri.parse(docUriStr);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                         docFolderUri != null)
                     intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, docFolderUri);
             }
 
-            currentActivity.startActivityForResult(intent, REQUEST_CODE);
+            currentActivity.startActivityForResult(intent, OPEN_TREE_REQUEST_CODE);
         } catch (Exception e) {
             safPickerPromise.reject(E_FAILED_TO_SHOW_PICKER, e.getMessage(), e);
             safPickerPromise = null;
@@ -555,11 +607,41 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
         docIntent.setDataAndType(documentUri, "application/pdf");
         docIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-        try{
+        try {
             currentActivity.startActivity(docIntent);
             promise.resolve(true);
         } catch (ActivityNotFoundException e) {
             promise.reject("500", e.getMessage(), e);
+        }
+    }
+
+    @ReactMethod
+    public void openPdfFileForRead(String appFolderUriStr, Promise promise) {
+        try {
+            Activity currentActivity = getCurrentActivity();
+
+            if (currentActivity == null) {
+                promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+                return;
+            }
+            safPickerPromise = promise;
+
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/pdf");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            if (!appFolderUriStr.equals("")) {
+                Uri appFolderUri = Uri.parse(appFolderUriStr);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                        appFolderUri != null)
+                    intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, appFolderUri);
+            }
+
+            currentActivity.startActivityForResult(intent, OPEN_FILE_REQUEST_CODE);
+        } catch (Exception e) {
+            safPickerPromise.reject(E_FAILED_TO_SHOW_PICKER, e.getMessage(), e);
+            safPickerPromise = null;
         }
     }
 }

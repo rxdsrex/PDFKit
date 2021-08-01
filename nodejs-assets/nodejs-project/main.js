@@ -1,6 +1,8 @@
 const rnBridge = require('rn-bridge');
-const createPdf = require('./createPdf');
 const {join, normalize} = require('path');
+
+const createPdf = require('./createPdf');
+const modifyPdf = require('./modifyPdf');
 
 rnBridge.channel.on('createPdf', async (chapters, cacheDir, filename) => {
   try {
@@ -13,6 +15,20 @@ rnBridge.channel.on('createPdf', async (chapters, cacheDir, filename) => {
     }
   } catch (err) {
     rnBridge.channel.post('onCreatePdfError', err);
+  }
+});
+
+rnBridge.channel.on('modifyPdf', async (chapters, filePath) => {
+  try {
+    const pdfFileLocation = normalize(filePath);
+    const created = await modifyPdf(pdfFileLocation, chapters);
+    if (created) {
+      rnBridge.channel.post('onModifyPdfDone', pdfFileLocation);
+    } else {
+      rnBridge.channel.post('onModifyPdfDone', '');
+    }
+  } catch (err) {
+    rnBridge.channel.post('onModifyPdfError', err);
   }
 });
 

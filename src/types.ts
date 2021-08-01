@@ -53,6 +53,15 @@ export interface createPdfModalProps {
   setChapters: (chapters: chapterProps[]) => void;
 }
 
+export interface modifyPdfModalProps {
+  createModalVisible: boolean;
+  setCreateModalVisible: (createModalVisible: boolean) => void;
+  setInputPdfFilePath: (inputPdfFilePath: string) => void;
+  inputPdfFilePath: string;
+  chapters: chapterProps[];
+  setChapters: (chapters: chapterProps[]) => void;
+}
+
 export interface chapterListProps {
   chapters: chapterProps[];
   setChapters: (chapters: chapterProps[]) => void;
@@ -61,4 +70,9 @@ export interface chapterListProps {
   setChapterTitle: (chapterTitle: string) => void;
   setChapterId: (chapterId: string) => void;
   backScreenName: string;
+}
+
+export interface nativeCopyFileProps {
+  destinationFolderUriStr: string;
+  outputFileUriStr: string;
 }

@@ -4,10 +4,8 @@ import {Alert, BackHandler, NativeModules} from 'react-native';
 const {FilesystemNativeModule} = NativeModules;
 
 export const getCameraPermission = async () => {
-  await AsyncStorage.setItem('CameraPermitted', 'false');
   try {
-    const gotCamPerm = await requestCameraPermission();
-    await AsyncStorage.setItem('CameraPermitted', JSON.stringify(gotCamPerm));
+    await requestCameraPermission();
   } catch (err) {
     console.warn(err.message);
     Alert.alert(
@@ -27,16 +25,11 @@ export const getCameraPermission = async () => {
 };
 
 export const getStoragePermission = async () => {
-  await AsyncStorage.setItem('StoragePermitted', 'false');
   try {
     let gotStorePerm = false;
     do {
       gotStorePerm = await requestStoragePermission();
     } while (!gotStorePerm);
-    await AsyncStorage.setItem(
-      'StoragePermitted',
-      JSON.stringify(gotStorePerm),
-    );
   } catch (err) {
     console.warn(err.message);
     Alert.alert(
@@ -93,7 +86,7 @@ async function requestCameraPermission() {
           },
         );
 
-        if (!(grantedCamera === PermissionsAndroid.RESULTS.GRANTED)) {
+        if (grantedCamera === PermissionsAndroid.RESULTS.DENIED) {
           console.warn('CAMERA permission denied');
           resolve(false);
           return;
@@ -129,7 +122,7 @@ async function requestStoragePermission() {
           },
         );
 
-        if (!(grantedStorageRead === PermissionsAndroid.RESULTS.GRANTED)) {
+        if (grantedStorageRead === PermissionsAndroid.RESULTS.DENIED) {
           console.warn('STORAGE permission denied');
           resolve(false);
           return;
@@ -143,7 +136,7 @@ async function requestStoragePermission() {
           const grantedStorageWrite = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
           );
-          if (!(grantedStorageWrite === PermissionsAndroid.RESULTS.GRANTED)) {
+          if (grantedStorageWrite === PermissionsAndroid.RESULTS.DENIED) {
             console.warn('STORAGE permission denied');
             resolve(false);
             return;
