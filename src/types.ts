@@ -1,9 +1,5 @@
 import {ParamListBase, RouteProp} from '@react-navigation/native';
 
-export interface renderChapterProps {
-  item: chapterProps;
-  index?: number;
-}
 export interface chapterProps {
   id: string;
   chapterTitle: string;

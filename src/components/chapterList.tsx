@@ -1,12 +1,15 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
-import {FlatList, Pressable, View, Text} from 'react-native';
+import React, {useCallback} from 'react';
+import {Pressable, View, Text} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useColorScheme} from 'react-native';
-
-import {chapterListProps, chapterProps, renderChapterProps} from '../types';
-import styles from '../components/styles';
 import {useNavigation} from '@react-navigation/native';
+import DraggableFlatList, {
+  RenderItemParams,
+} from 'react-native-draggable-flatlist';
+
+import {chapterListProps, chapterProps} from '../types';
+import styles from '../components/styles';
 
 const ChapterList = ({
   chapters,
@@ -21,16 +24,16 @@ const ChapterList = ({
   const css = styles(isDarkMode);
   const navigation = useNavigation();
 
-  const onDelete = (value: chapterProps) => {
-    const data = chapters.filter(
-      chapterItem => chapterItem.id && chapterItem.id !== value.id,
-    );
-    setChapters(data);
-  };
+  const renderItem = useCallback(
+    ({item, drag, isActive}: RenderItemParams<chapterProps>) => {
+      const onDelete = (value: chapterProps) => {
+        const data = chapters.filter(
+          chapterItem => chapterItem.id && chapterItem.id !== value.id,
+        );
+        setChapters(data);
+      };
 
-  const renderItem = ({item}: renderChapterProps) => {
-    return (
-      <View>
+      return (
         <View
           style={[
             css.default,
@@ -43,7 +46,10 @@ const ChapterList = ({
               minWidth: 350,
               minHeight: 60,
               borderRadius: 4,
-            }}>
+              borderColor: 'red',
+              borderWidth: isActive ? 1 : 0,
+            }}
+            onLongPress={drag}>
             <Text
               style={[
                 css.text,
@@ -89,15 +95,28 @@ const ChapterList = ({
             <Ionicons name="create-outline" color="white" size={26} />
           </Pressable>
         </View>
-      </View>
-    );
-  };
+      );
+    },
+    [
+      backScreenName,
+      chapters,
+      css,
+      navigation,
+      setChapterId,
+      setChapterTitle,
+      setChapters,
+      setDonePicking,
+      setImages,
+    ],
+  );
   return (
-    <FlatList
+    <DraggableFlatList
       style={{maxWidth: '85%'}}
       data={chapters}
       keyExtractor={item => item.id}
       renderItem={renderItem}
+      onDragEnd={({data}) => setChapters(data)}
+      autoscrollSpeed={500}
       numColumns={1}
     />
   );
