@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import {
   Text,
@@ -164,9 +165,12 @@ const CreateScreen = () => {
             <Text style={css.text}>Add Chapter</Text>
           </Button>
           <Button
-            color="teal"
             mode="contained"
-            style={css.modalButtonDone}
+            style={
+              chapters.length > 0
+                ? css.modalButtonDone
+                : css.modalButtonDoneDisabled
+            }
             uppercase={false}
             disabled={chapters.length > 0 ? false : true}
             onPress={async () => {
@@ -204,20 +208,27 @@ const CreateScreen = () => {
                       uppercase={false}
                       onPress={async () => {
                         try {
-                          setCreateModalVisible(false);
-                          setPdfFileName('');
-                          const docUri = await createPdf(
-                            chapters,
-                            pdfFileName + '.pdf',
-                          );
-                          ToastAndroid.show(
-                            'PDF created successfully!',
-                            ToastAndroid.SHORT,
-                          );
-                          await FilesystemNativeModule.openDocumentInChosenApp(
-                            docUri,
-                          );
-                          setChapters([]);
+                          if (pdfFileName) {
+                            setCreateModalVisible(false);
+                            const docUri = await createPdf(
+                              chapters,
+                              pdfFileName + '.pdf',
+                            );
+                            ToastAndroid.show(
+                              'PDF created successfully!',
+                              ToastAndroid.SHORT,
+                            );
+                            await FilesystemNativeModule.openDocumentInChosenApp(
+                              docUri,
+                            );
+                            setPdfFileName('');
+                            setChapters([]);
+                          } else {
+                            ToastAndroid.show(
+                              'Please enter a file name',
+                              ToastAndroid.SHORT,
+                            );
+                          }
                         } catch (err) {
                           console.warn(err.message);
                         }
@@ -293,7 +304,6 @@ const CreateScreen = () => {
                 style={[
                   css.modalButton,
                   css.modalButtonDone,
-                  // eslint-disable-next-line react-native/no-inline-styles
                   {backgroundColor: dnBtnDisabled ? 'slategray' : 'royalblue'},
                 ]}
                 disabled={dnBtnDisabled}

@@ -1,4 +1,3 @@
-const {PDFDocument} = require('pdf-lib');
 const {readFile, writeFile} = require('fs').promises;
 const {normalize, dirname} = require('path');
 const {existsSync} = require('fs');
@@ -55,10 +54,10 @@ const utils = Object.freeze({
 
   /**
    *
-   * @param {PDFDocument} pdfDoc The PDF document object
+   * @param {import('pdf-lib').PDFDocument} pdfDoc The PDF document object
    * @param {string} imageStr base64 representation of the image data
    * @param {string} mime Extension of the image
-   * @return {Promise<PDFDocument>}
+   * @return {Promise<import('pdf-lib').PDFDocument>}
    */
   addImage: function (pdfDoc, imageStr, mime) {
     return new Promise(async (resolve, reject) => {

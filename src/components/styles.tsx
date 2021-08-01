@@ -143,6 +143,10 @@ const styles = (
       backgroundColor: 'royalblue',
       marginLeft: 70,
     },
+    modalButtonDoneDisabled: {
+      backgroundColor: 'dimgray',
+      marginLeft: 70,
+    },
     modalButtonClose: {
       backgroundColor: '#2196F3',
       marginRight: 70,

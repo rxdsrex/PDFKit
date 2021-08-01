@@ -1,14 +1,17 @@
-import React, {useState, useEffect} from 'react';
-import {Text, Dimensions, View, FlatList, Image, Pressable} from 'react-native';
+import React, {useState, useEffect, useCallback} from 'react';
+import {Text, Dimensions, View, Image, Pressable} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import DraggableFlatList, {
+  RenderItemParams,
+} from 'react-native-draggable-flatlist';
 
 import styles from '../components/styles';
-import {renderItemProps, imgRouteProps, Results} from '../types';
+import {imgRouteProps, Results} from '../types';
 import Colors from '../colors';
 
 const PickImagesScreen = () => {
@@ -30,31 +33,40 @@ const PickImagesScreen = () => {
     setBackScreenName(route.params.backScreenName);
   }, [route.params.gotImages, route.params.backScreenName]);
 
-  const onDelete = (value: Results) => {
-    const data = images.filter(
-      item =>
-        item?.localIdentifier &&
-        item?.localIdentifier !== value?.localIdentifier,
-    );
-    setImages(data);
-  };
+  const renderItem = useCallback(
+    ({item, drag, isActive}: RenderItemParams<Results>) => {
+      const onDelete = (value: Results) => {
+        const data = images.filter(
+          imageItem =>
+            imageItem?.localIdentifier &&
+            imageItem?.localIdentifier !== value?.localIdentifier,
+        );
+        setImages(data);
+      };
 
-  const renderItem = ({item}: renderItemProps) => {
-    return (
-      <View>
-        <Image
-          width={IMAGE_WIDTH}
-          source={{
-            uri: item?.path,
-          }}
-          style={css.media}
-        />
-        <Pressable onPress={() => onDelete(item)} style={css.imageButtonDelete}>
-          <Ionicons name="close-circle" color="white" size={20} />
-        </Pressable>
-      </View>
-    );
-  };
+      return (
+        <View>
+          <Pressable onLongPress={drag}>
+            <Image
+              width={IMAGE_WIDTH}
+              source={{
+                uri: item?.path,
+              }}
+              style={css.media}
+              blurRadius={isActive ? 3 : 0}
+              progressiveRenderingEnabled={true}
+            />
+            <Pressable
+              onPress={() => onDelete(item)}
+              style={css.imageButtonDelete}>
+              <Ionicons name="close-circle" color="white" size={20} />
+            </Pressable>
+          </Pressable>
+        </View>
+      );
+    },
+    [IMAGE_WIDTH, css.imageButtonDelete, css.media, images],
+  );
 
   const getImages = async () => {
     try {
@@ -82,11 +94,12 @@ const PickImagesScreen = () => {
         <Text style={css.addImageText}>Add images</Text>
       </View>
       <View style={styles(isDarkMode, 0, images.length).imageView}>
-        <FlatList
+        <DraggableFlatList
           data={images}
           keyExtractor={(item, index) => (item?.filename ?? item?.path) + index}
           renderItem={renderItem}
           numColumns={1}
+          onDragEnd={({data}) => setImages(data)}
         />
       </View>
       <View style={css.selectView}>

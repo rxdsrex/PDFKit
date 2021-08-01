@@ -267,7 +267,6 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
         DocumentFile appDir;
         DocumentFile outputFile = null;
 
-        boolean existingFileRenamed = false;
         boolean gotError = false;
         Uri existingFileNewUri = null;
 
@@ -348,7 +347,6 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
                 existingFileNewUri = DocumentsContract.renameDocument(
                         currentActivity.getContentResolver(), existingFile.getUri(),
                         newName);
-                existingFileRenamed = true;
             }
 
             outputFile = appDir.createFile(mime, sourceFileName);
@@ -372,8 +370,7 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
                     inputChannel.transferTo(0, inputChannel.size(), outputChannel);
                 }
 
-                if (existingFile != null && existingFile.isFile() &&
-                        existingFileNewUri != null) {
+                if (existingFileNewUri != null) {
                     DocumentsContract.deleteDocument(currentActivity.getContentResolver(),
                             existingFileNewUri);
                 }
@@ -436,8 +433,7 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
                 }
             }
 
-            if (gotError && deleted && existingFileRenamed &&
-                    existingFileNewUri != null) {
+            if (gotError && deleted && existingFileNewUri != null) {
                 try {
                     DocumentsContract.renameDocument(currentActivity.getContentResolver(),
                             existingFileNewUri, sourceFileName);
