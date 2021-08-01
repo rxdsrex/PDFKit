@@ -100,6 +100,7 @@ const PickImagesScreen = () => {
           renderItem={renderItem}
           numColumns={1}
           onDragEnd={({data}) => setImages(data)}
+          autoscrollSpeed={1200}
         />
       </View>
       <View style={css.selectView}>
