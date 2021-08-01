@@ -110,7 +110,7 @@ const PickImagesScreen = () => {
           mode="contained"
           uppercase={false}
           onPress={getImages}>
-          <Text style={css.text}>Add</Text>
+          <Text style={css.text}>{images.length ? 'Add More' : 'Add'}</Text>
         </Button>
         <Button
           style={css.buttonClose}

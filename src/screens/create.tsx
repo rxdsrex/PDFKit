@@ -1,32 +1,17 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
-import {
-  Text,
-  View,
-  FlatList,
-  Modal,
-  Pressable,
-  TextInput,
-  ToastAndroid,
-  NativeModules,
-} from 'react-native';
+import {Text, View} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import styles from '../components/styles';
-import {
-  imgRouteProps,
-  chapterProps,
-  renderChapterProps,
-  Results,
-} from '../types';
+import {imgRouteProps, chapterProps, Results} from '../types';
 import Colors from '../colors';
-import {createPdf} from '../services/pdfNode';
 
-const {FilesystemNativeModule} = NativeModules;
+import AddChapterModal from '../components/addChapterModal';
+import CreatePdfModal from '../components/createPdfModal';
+import ChapterList from '../components/chapterList';
 
 const CreateScreen = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -70,76 +55,6 @@ const CreateScreen = () => {
     route.params.gotImages,
   ]);
 
-  const onDelete = (value: chapterProps) => {
-    const data = chapters.filter(item => item.id && item.id !== value.id);
-    setChapters(data);
-  };
-
-  const renderItem = ({item}: renderChapterProps) => {
-    return (
-      <View>
-        <View
-          style={[
-            css.default,
-            css.centerDiv,
-            {marginTop: 15, flexDirection: 'column'},
-          ]}>
-          <Pressable
-            style={{
-              backgroundColor: 'mediumslateblue',
-              minWidth: 350,
-              minHeight: 60,
-              borderRadius: 4,
-            }}>
-            <Text
-              style={[
-                css.text,
-                {
-                  maxWidth: '70%',
-                  textAlign: 'left',
-                  left: 50,
-                  textAlignVertical: 'center',
-                },
-              ]}>
-              <Text style={{fontWeight: 'bold'}}>Title</Text>
-              <Text>: {item.chapterTitle}</Text>
-            </Text>
-            <Text
-              style={[
-                css.text,
-                {
-                  maxWidth: '90%',
-                  textAlign: 'left',
-                  left: 50,
-                  textAlignVertical: 'center',
-                },
-              ]}>
-              <Text style={{fontWeight: 'bold'}}>Pages</Text>
-              <Text>: {item.pages.length}</Text>
-            </Text>
-          </Pressable>
-          <Pressable onPress={() => onDelete(item)} style={css.buttonDelete}>
-            <Ionicons name="trash-outline" color="white" size={26} />
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              setDonePicking(true);
-              setImages(item.pages);
-              setChapterTitle(item.chapterTitle);
-              setChapterId(item.id);
-              navigation.navigate('PickImage', {
-                gotImages: item.pages,
-                backScreenName: 'Create',
-              });
-            }}
-            style={css.buttonEdit}>
-            <Ionicons name="create-outline" color="white" size={26} />
-          </Pressable>
-        </View>
-      </View>
-    );
-  };
-
   return (
     <SafeAreaView
       style={[
@@ -179,181 +94,42 @@ const CreateScreen = () => {
             <Text style={css.text}>Create</Text>
           </Button>
           <View>
-            <Modal
-              animationType="fade"
-              transparent={true}
-              visible={createModalVisible}
-              onRequestClose={() => {
-                setCreateModalVisible(false);
-                setPdfFileName('');
-              }}>
-              <View style={css.centeredView}>
-                <View style={css.modalView}>
-                  <View style={css.inline}>
-                    <Text style={css.modalText}>Filename: </Text>
-                    <TextInput
-                      style={css.chInput}
-                      value={pdfFileName}
-                      onChangeText={setPdfFileName}
-                      multiline={false}
-                      placeholderTextColor="navajowhite"
-                      placeholder="Enter the PDF filename"
-                      defaultValue=""
-                    />
-                  </View>
-                  <View style={css.selectImagesView}>
-                    <Button
-                      color="teal"
-                      mode="contained"
-                      uppercase={false}
-                      onPress={async () => {
-                        try {
-                          if (pdfFileName) {
-                            setCreateModalVisible(false);
-                            const docUri = await createPdf(
-                              chapters,
-                              pdfFileName + '.pdf',
-                            );
-                            ToastAndroid.show(
-                              'PDF created successfully!',
-                              ToastAndroid.SHORT,
-                            );
-                            await FilesystemNativeModule.openDocumentInChosenApp(
-                              docUri,
-                            );
-                            setPdfFileName('');
-                            setChapters([]);
-                          } else {
-                            ToastAndroid.show(
-                              'Please enter a file name',
-                              ToastAndroid.SHORT,
-                            );
-                          }
-                        } catch (err) {
-                          console.warn(err.message);
-                        }
-                      }}>
-                      <Text style={css.text}>Create PDF</Text>
-                    </Button>
-                  </View>
-                </View>
-              </View>
-            </Modal>
+            <CreatePdfModal
+              chapters={chapters}
+              createModalVisible={createModalVisible}
+              pdfFileName={pdfFileName}
+              setChapters={setChapters}
+              setCreateModalVisible={setCreateModalVisible}
+              setPdfFileName={setPdfFileName}
+            />
           </View>
         </View>
-        <FlatList
-          style={{maxWidth: '85%'}}
-          data={chapters}
-          keyExtractor={item => item.id}
-          renderItem={renderItem}
-          numColumns={1}
+        <ChapterList
+          chapters={chapters}
+          setChapterId={setChapterId}
+          setChapterTitle={setChapterTitle}
+          setChapters={setChapters}
+          setDonePicking={setDonePicking}
+          setImages={setImages}
+          backScreenName={'Create'}
         />
       </View>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}>
-        <View style={css.centeredView}>
-          <View style={css.modalView}>
-            <View style={css.inline}>
-              <Text style={css.modalText}>Chapter Title: </Text>
-              <TextInput
-                style={css.chInput}
-                value={chapterTitle}
-                onChangeText={setChapterTitle}
-                multiline={false}
-                placeholderTextColor="navajowhite"
-                placeholder="Enter name of the chapter"
-                defaultValue=""
-              />
-            </View>
-            <View style={css.selectImagesView}>
-              <Button
-                color="teal"
-                mode="contained"
-                uppercase={false}
-                onPress={() => {
-                  setModalVisible(!modalVisible);
-                  setDonePicking(true);
-                  navigation.navigate('PickImage', {
-                    gotImages: images,
-                    backScreenName: 'Create',
-                  });
-                }}>
-                <Text style={css.text}>
-                  {images.length > 0
-                    ? images.length + ' images selected'
-                    : 'Add Images'}
-                </Text>
-              </Button>
-            </View>
-            <View style={css.inline}>
-              <Pressable
-                style={[css.modalButton, css.modalButtonClose]}
-                onPress={() => {
-                  setChapterTitle('');
-                  setModalVisible(!modalVisible);
-                  setDonePicking(false);
-                }}>
-                <Text style={css.text}>Cancel</Text>
-              </Pressable>
-              <Pressable
-                style={[
-                  css.modalButton,
-                  css.modalButtonDone,
-                  {backgroundColor: dnBtnDisabled ? 'slategray' : 'royalblue'},
-                ]}
-                disabled={dnBtnDisabled}
-                onPress={() => {
-                  if (images.length > 0 && chapterId !== '') {
-                    const newBook = chapters.map((chapter, index) => {
-                      if (chapter.id === chapterId) {
-                        chapter.pages = images;
-                        chapter.chapterTitle =
-                          chapterTitle === '' ? index + 1 + '' : chapterTitle;
-                      }
-                      return chapter;
-                    });
-                    setChapters(newBook);
-                    setChapterId('');
-                    setDnBtnDisabled(true);
-                    setDonePicking(false);
-                    setImages([]);
-                  } else if (images.length === 0 && chapterId !== '') {
-                    const data = chapters.filter(
-                      item => item.id && item.id !== chapterId,
-                    );
-                    setChapters(data);
-                    setChapterId('');
-                    setDnBtnDisabled(true);
-                    setDonePicking(false);
-                    setImages([]);
-                  } else if (images.length > 0) {
-                    const chapterData: chapterProps = {
-                      id: Math.random().toString(36).slice(2),
-                      chapterTitle:
-                        chapterTitle === ''
-                          ? chapters.length + 1 + ''
-                          : chapterTitle,
-                      pages: images,
-                    };
-                    setChapters([...chapters, chapterData]);
-                    setDnBtnDisabled(true);
-                    setDonePicking(false);
-                    setImages([]);
-                  }
-                  setChapterTitle('');
-                  setModalVisible(!modalVisible);
-                }}>
-                <Text style={css.text}>Done</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <AddChapterModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        chapterId={chapterId}
+        chapterTitle={chapterTitle}
+        chapters={chapters}
+        dnBtnDisabled={dnBtnDisabled}
+        images={images}
+        setChapterId={setChapterId}
+        setChapterTitle={setChapterTitle}
+        setChapters={setChapters}
+        setDnBtnDisabled={setDnBtnDisabled}
+        setDonePicking={setDonePicking}
+        setImages={setImages}
+        backScreenName={'Create'}
+      />
     </SafeAreaView>
   );
 };
