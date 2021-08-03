@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.List;
 
-
 public class FilesystemNativeModule extends ReactContextBaseJavaModule {
     private static final int OPEN_TREE_REQUEST_CODE = 8733;
     private static final int OPEN_FILE_REQUEST_CODE = 3453;
@@ -205,13 +204,14 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void copyNResolveFilePath(String inputUriStr, Promise promise) {
-        Uri inputFileUri = Uri.parse(inputUriStr);
         Activity currentActivity = getCurrentActivity();
         if (currentActivity == null) {
             String msg = "Activity doesn't exist";
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, msg, new Exception(msg));
             return;
         }
+
+        Uri inputFileUri = Uri.parse(inputUriStr);
 
         FileInputStream input = null;
         FileOutputStream output = null;
@@ -642,6 +642,23 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             safPickerPromise.reject(E_FAILED_TO_SHOW_PICKER, e.getMessage(), e);
             safPickerPromise = null;
+        }
+    }
+
+    @ReactMethod
+    public void checkTreePermissionsGranted(String treeUriStr, Promise promise) {
+        try {
+            Activity currentActivity = getCurrentActivity();
+            if (currentActivity == null) {
+                String msg = "Activity doesn't exist";
+                promise.reject(E_ACTIVITY_DOES_NOT_EXIST, msg, new Exception(msg));
+                return;
+            }
+
+            boolean granted = arePermissionsGranted(currentActivity, treeUriStr);
+            promise.resolve(granted);
+        } catch (Exception e) {
+            promise.reject("500", e.getMessage(), e);
         }
     }
 }

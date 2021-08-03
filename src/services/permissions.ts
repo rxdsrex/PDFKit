@@ -1,7 +1,8 @@
 import {PermissionsAndroid} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Alert, BackHandler, NativeModules} from 'react-native';
-const {FilesystemNativeModule} = NativeModules;
+import {Alert, BackHandler} from 'react-native';
+
+import FilesystemNativeModule from '../FileSystemNativeModule';
 
 export const getCameraPermission = async () => {
   try {
@@ -50,7 +51,11 @@ export const getStoragePermission = async () => {
 
 export const setStorageTreeUri = async () => {
   const storedTreeUri = await AsyncStorage.getItem('rootFolderUri');
-  if (!storedTreeUri) {
+  const granted = storedTreeUri
+    ? await FilesystemNativeModule.checkTreePermissionsGranted(storedTreeUri)
+    : false;
+
+  if (!storedTreeUri || !granted) {
     Alert.alert(
       'Select App folder',
       'Please select the folder where you want the app to create the PDF files.',

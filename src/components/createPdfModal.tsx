@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Text,
-  View,
-  Modal,
-  TextInput,
-  ToastAndroid,
-  NativeModules,
-} from 'react-native';
+import {Text, View, Modal, TextInput, ToastAndroid} from 'react-native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {createPdf} from '../services/pdfNode';
@@ -14,7 +7,7 @@ import {createPdf} from '../services/pdfNode';
 import styles from '../components/styles';
 import {createPdfModalProps} from '../types';
 
-const {FilesystemNativeModule} = NativeModules;
+import FilesystemNativeModule from '../FileSystemNativeModule';
 
 const CreatePdfModal = ({
   createModalVisible,

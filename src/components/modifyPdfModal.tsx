@@ -1,14 +1,13 @@
 import React from 'react';
-import {Text, View, Modal, ToastAndroid, NativeModules} from 'react-native';
+import {Text, View, Modal, ToastAndroid} from 'react-native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {modifyPdf} from '../services/pdfNode';
 
+import FilesystemNativeModule from '../FileSystemNativeModule';
 import styles from './styles';
 import {modifyPdfModalProps} from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const {FilesystemNativeModule} = NativeModules;
 
 const ModifyPdfModal = ({
   createModalVisible,

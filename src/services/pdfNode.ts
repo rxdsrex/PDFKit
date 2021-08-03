@@ -1,14 +1,11 @@
 import nodejs from 'nodejs-mobile-react-native';
 import {chapterProps} from '../types';
-import {NativeModules} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {nativeCopyFileProps} from '../types';
-
-const {FilesystemNativeModule} = NativeModules;
+import FilesystemNativeModule from '../FileSystemNativeModule';
 
 export const createPdf = (chapters: chapterProps[], filename: string) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise<string>(async (resolve, reject) => {
     try {
       const cacheDir = await FilesystemNativeModule.getCacheDirectoryPath();
       const treeFolderUriStr = await AsyncStorage.getItem('rootFolderUri');
@@ -25,59 +22,65 @@ export const createPdf = (chapters: chapterProps[], filename: string) => {
         nodejs.channel.removeListener('onCreatePdfError', onCreatePdfError);
 
         try {
-          let copyFileResponse: nativeCopyFileProps;
-          if (destFolderUriStr) {
-            copyFileResponse = await FilesystemNativeModule.copyFileFromToPath(
-              cacheDir,
-              filename,
-              destFolderUriStr,
-              'application/pdf',
-              treeFolderUriStr,
-            );
-          } else {
-            copyFileResponse = await FilesystemNativeModule.copyFileFromToPath(
-              cacheDir,
-              filename,
-              '',
-              'application/pdf',
-              treeFolderUriStr,
-            );
-          }
-
-          await AsyncStorage.setItem(
-            'destFolderUri',
-            copyFileResponse.destinationFolderUriStr,
-          );
-
-          const sCreatedDocsStr = await AsyncStorage.getItem('createdDocs');
-          if (
-            sCreatedDocsStr &&
-            typeof JSON.parse(sCreatedDocsStr) === 'object'
-          ) {
-            const sCreatedDocs = JSON.parse(sCreatedDocsStr);
-            if (
-              sCreatedDocs.docs.indexOf(copyFileResponse.outputFileUriStr) ===
-              -1
-            ) {
-              sCreatedDocs.docs.push(copyFileResponse.outputFileUriStr);
+          if (pdfFileLocation && treeFolderUriStr) {
+            let copyFileResponse;
+            if (destFolderUriStr) {
+              copyFileResponse =
+                await FilesystemNativeModule.copyFileFromToPath(
+                  cacheDir,
+                  filename,
+                  destFolderUriStr,
+                  'application/pdf',
+                  treeFolderUriStr,
+                );
+            } else {
+              copyFileResponse =
+                await FilesystemNativeModule.copyFileFromToPath(
+                  cacheDir,
+                  filename,
+                  '',
+                  'application/pdf',
+                  treeFolderUriStr,
+                );
             }
+
             await AsyncStorage.setItem(
-              'createdDocs',
-              JSON.stringify(sCreatedDocs),
+              'destFolderUri',
+              copyFileResponse.destinationFolderUriStr,
             );
+
+            const sCreatedDocsStr = await AsyncStorage.getItem('createdDocs');
+            if (
+              sCreatedDocsStr &&
+              typeof JSON.parse(sCreatedDocsStr) === 'object'
+            ) {
+              const sCreatedDocs = JSON.parse(sCreatedDocsStr);
+              if (
+                sCreatedDocs.docs.indexOf(copyFileResponse.outputFileUriStr) ===
+                -1
+              ) {
+                sCreatedDocs.docs.push(copyFileResponse.outputFileUriStr);
+              }
+              await AsyncStorage.setItem(
+                'createdDocs',
+                JSON.stringify(sCreatedDocs),
+              );
+            } else {
+              const sCreatedDocs = {
+                docs: [copyFileResponse.outputFileUriStr],
+              };
+              await AsyncStorage.setItem(
+                'createdDocs',
+                JSON.stringify(sCreatedDocs),
+              );
+            }
+
+            await FilesystemNativeModule.deleteFileByPath(pdfFileLocation, '');
+
+            resolve(copyFileResponse.outputFileUriStr);
           } else {
-            const sCreatedDocs = {
-              docs: [copyFileResponse.outputFileUriStr],
-            };
-            await AsyncStorage.setItem(
-              'createdDocs',
-              JSON.stringify(sCreatedDocs),
-            );
+            reject(new Error('PDF file creation failed'));
           }
-
-          await FilesystemNativeModule.deleteFileByPath(pdfFileLocation, '');
-
-          resolve(copyFileResponse.outputFileUriStr);
         } catch (err) {
           reject(err);
         }
@@ -98,7 +101,7 @@ export const createPdf = (chapters: chapterProps[], filename: string) => {
 };
 
 export const modifyPdf = (chapters: chapterProps[], inputFilePath: string) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise<string>(async (resolve, reject) => {
     try {
       const treeFolderUriStr = await AsyncStorage.getItem('rootFolderUri');
       const destFolderUriStr = await AsyncStorage.getItem('destFolderUri');
@@ -114,14 +117,14 @@ export const modifyPdf = (chapters: chapterProps[], inputFilePath: string) => {
         nodejs.channel.removeListener('onCreatePdfError', onModifyPdfError);
 
         try {
-          if (pdfFileLocation) {
+          if (pdfFileLocation && treeFolderUriStr) {
             const separatorLastIndex = pdfFileLocation.lastIndexOf('/');
             const [cacheDir, filename] = [
               pdfFileLocation.slice(0, separatorLastIndex),
               pdfFileLocation.slice(separatorLastIndex + 1),
             ];
 
-            let copyFileResponse: nativeCopyFileProps;
+            let copyFileResponse;
             if (destFolderUriStr) {
               copyFileResponse =
                 await FilesystemNativeModule.copyFileFromToPath(

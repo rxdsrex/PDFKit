@@ -71,8 +71,3 @@ export interface chapterListProps {
   setChapterId: (chapterId: string) => void;
   backScreenName: string;
 }
-
-export interface nativeCopyFileProps {
-  destinationFolderUriStr: string;
-  outputFileUriStr: string;
-}
