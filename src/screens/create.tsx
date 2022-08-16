@@ -1,9 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import {Text, View} from 'react-native';
+import {Text, Vibration, View} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 import styles from '../components/styles';
 import {imgRouteProps, chapterProps, Results} from '../types';
@@ -30,6 +31,7 @@ const CreateScreen = () => {
   const [chapterId, setChapterId] = useState('');
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [pdfFileName, setPdfFileName] = useState('');
+  const [cSpinnerVisible, setCSpinnerVisible] = useState(false);
 
   useEffect(() => {
     function handleModalVisibility() {
@@ -46,28 +48,12 @@ const CreateScreen = () => {
     return function cleanup() {
       navigation.removeListener('focus', handleModalVisibility);
     };
-  }, [
-    chapterId,
-    dnBtnDisabled,
-    donePicking,
-    modalVisible,
-    navigation,
-    route.params.gotImages,
-  ]);
+  }, [chapterId, dnBtnDisabled, donePicking, modalVisible, navigation, route.params.gotImages]);
 
   return (
-    <SafeAreaView
-      style={[
-        css.default,
-        css.centerDiv,
-        {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter},
-      ]}>
-      <View
-        style={[
-          css.default,
-          css.centerDiv,
-          {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter},
-        ]}>
+    <SafeAreaView style={[css.default, css.centerDiv, {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter}]}>
+      <Spinner visible={cSpinnerVisible} textContent={'Creating PDF...'} color={'#225bbd'} animation={'fade'} />
+      <View style={[css.default, css.centerDiv, {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter}]}>
         <View style={css.selectView}>
           <Button
             color="blue"
@@ -76,20 +62,22 @@ const CreateScreen = () => {
             style={css.modalButtonClose}
             onPress={() => {
               setModalVisible(!modalVisible);
+              setTimeout(() => {
+                Vibration.vibrate(10, false);
+              }, 0);
             }}>
             <Text style={css.text}>Add Chapter</Text>
           </Button>
           <Button
             mode="contained"
-            style={
-              chapters.length > 0
-                ? css.modalButtonDone
-                : css.modalButtonDoneDisabled
-            }
+            style={chapters.length > 0 ? css.modalButtonDone : css.modalButtonDoneDisabled}
             uppercase={false}
             disabled={chapters.length > 0 ? false : true}
             onPress={async () => {
               setCreateModalVisible(true);
+              setTimeout(() => {
+                Vibration.vibrate(10, false);
+              }, 0);
             }}>
             <Text style={css.text}>Create</Text>
           </Button>
@@ -101,6 +89,7 @@ const CreateScreen = () => {
               setChapters={setChapters}
               setCreateModalVisible={setCreateModalVisible}
               setPdfFileName={setPdfFileName}
+              setCSpinnerVisible={setCSpinnerVisible}
             />
           </View>
         </View>

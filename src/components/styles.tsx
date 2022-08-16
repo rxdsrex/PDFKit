@@ -1,11 +1,7 @@
 import {StyleSheet} from 'react-native';
 import Colors from '../colors';
 
-const styles = (
-  isDarkMode?: boolean,
-  width: number = 0,
-  imagesLength: number = 0,
-) => {
+const styles = (isDarkMode?: boolean, width: number = 0, imagesLength: number = 0) => {
   return StyleSheet.create({
     default: {
       flex: 1,

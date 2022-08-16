@@ -1,4 +1,5 @@
 import {ParamListBase, RouteProp} from '@react-navigation/native';
+import {Results as PickerResults} from '@baronha/react-native-multiple-image-picker';
 
 export interface chapterProps {
   id: string;
@@ -13,19 +14,7 @@ export interface imgRouteProps extends RouteProp<ParamListBase, string> {
   };
 }
 
-export interface Results {
-  path: string;
-  filename: string;
-  realPath: string;
-  parentFolderName: string;
-  localIdentifier: string;
-  width: number;
-  height: number;
-  mine: string;
-  type: string;
-  thumbnail?: string;
-  creationDate?: string;
-}
+export interface Results extends PickerResults {}
 
 export interface addChapterModalProps {
   modalVisible: boolean;
@@ -51,6 +40,7 @@ export interface createPdfModalProps {
   pdfFileName: string;
   chapters: chapterProps[];
   setChapters: (chapters: chapterProps[]) => void;
+  setCSpinnerVisible: (visibility: boolean) => void;
 }
 
 export interface modifyPdfModalProps {
@@ -60,6 +50,7 @@ export interface modifyPdfModalProps {
   inputPdfFilePath: string;
   chapters: chapterProps[];
   setChapters: (chapters: chapterProps[]) => void;
+  setMSpinnerVisible: (visibility: boolean) => void;
 }
 
 export interface chapterListProps {
@@ -71,3 +62,21 @@ export interface chapterListProps {
   setChapterId: (chapterId: string) => void;
   backScreenName: string;
 }
+
+export type RootStackParamList = {
+  PickImage: {
+    gotImages: Results[];
+    backScreenName: string;
+  };
+  Create: {
+    gotImages: Results[];
+  };
+  Modify: {
+    gotImages: Results[];
+  };
+};
+
+export type nodeCreateUpdateResponse = {
+  fileUri: string;
+  nonStdImagesFound: boolean;
+};

@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {Text, View, Modal, Pressable, TextInput} from 'react-native';
+import {Text, View, Modal, Pressable, TextInput, Vibration} from 'react-native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 
@@ -58,6 +58,9 @@ const AddChapterModal = ({
               mode="contained"
               uppercase={false}
               onPress={() => {
+                setTimeout(() => {
+                  Vibration.vibrate(10, false);
+                }, 0);
                 setModalVisible(!modalVisible);
                 setDonePicking(true);
                 navigation.navigate('PickImage', {
@@ -65,17 +68,16 @@ const AddChapterModal = ({
                   backScreenName: backScreenName,
                 });
               }}>
-              <Text style={css.text}>
-                {images.length > 0
-                  ? images.length + ' images selected'
-                  : 'Add Images'}
-              </Text>
+              <Text style={css.text}>{images.length > 0 ? images.length + ' images selected' : 'Add Images'}</Text>
             </Button>
           </View>
           <View style={css.inline}>
             <Pressable
               style={[css.modalButton, css.modalButtonClose]}
               onPress={() => {
+                setTimeout(() => {
+                  Vibration.vibrate(10, false);
+                }, 0);
                 setChapterTitle('');
                 setModalVisible(!modalVisible);
                 setDonePicking(false);
@@ -90,12 +92,14 @@ const AddChapterModal = ({
               ]}
               disabled={dnBtnDisabled}
               onPress={() => {
+                setTimeout(() => {
+                  Vibration.vibrate(10, false);
+                }, 0);
                 if (images.length > 0 && chapterId !== '') {
                   const newBook = chapters.map((chapter, index) => {
                     if (chapter.id === chapterId) {
                       chapter.pages = images;
-                      chapter.chapterTitle =
-                        chapterTitle === '' ? index + 1 + '' : chapterTitle;
+                      chapter.chapterTitle = chapterTitle === '' ? index + 1 + '' : chapterTitle;
                     }
                     return chapter;
                   });
@@ -105,9 +109,7 @@ const AddChapterModal = ({
                   setDonePicking(false);
                   setImages([]);
                 } else if (images.length === 0 && chapterId !== '') {
-                  const data = chapters.filter(
-                    item => item.id && item.id !== chapterId,
-                  );
+                  const data = chapters.filter(item => item.id && item.id !== chapterId);
                   setChapters(data);
                   setChapterId('');
                   setDnBtnDisabled(true);
@@ -116,10 +118,7 @@ const AddChapterModal = ({
                 } else if (images.length > 0) {
                   const chapterData: chapterProps = {
                     id: Math.random().toString(36).slice(2),
-                    chapterTitle:
-                      chapterTitle === ''
-                        ? chapters.length + 1 + ''
-                        : chapterTitle,
+                    chapterTitle: chapterTitle === '' ? chapters.length + 1 + '' : chapterTitle,
                     pages: images,
                   };
                   setChapters([...chapters, chapterData]);

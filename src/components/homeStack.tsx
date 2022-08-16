@@ -8,10 +8,7 @@ const RootStack = createStackNavigator();
 
 const HomeStack = () => {
   return (
-    <RootStack.Navigator
-      headerMode="none"
-      initialRouteName="Home"
-      screenOptions={{headerShown: false}}>
+    <RootStack.Navigator initialRouteName="Home" screenOptions={{headerShown: false, headerMode: 'screen'}}>
       <RootStack.Screen name="Home" component={HomeTabs} />
       <RootStack.Screen name="PickImage" component={PickImage} />
     </RootStack.Navigator>

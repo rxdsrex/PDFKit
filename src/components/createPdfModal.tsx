@@ -1,13 +1,11 @@
 import React from 'react';
-import {Text, View, Modal, TextInput, ToastAndroid} from 'react-native';
+import {Text, View, Modal, TextInput, Vibration} from 'react-native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
-import {createPdf} from '../services/pdfNode';
+import {createPdfButtonHandler} from '../handlers/createPdfModalHandlers';
 
 import styles from '../components/styles';
 import {createPdfModalProps} from '../types';
-
-import FilesystemNativeModule from '../FileSystemNativeModule';
 
 const CreatePdfModal = ({
   createModalVisible,
@@ -16,6 +14,7 @@ const CreatePdfModal = ({
   pdfFileName,
   chapters,
   setChapters,
+  setCSpinnerVisible,
 }: createPdfModalProps) => {
   const isDarkMode = useColorScheme() === 'dark';
   const css = styles(isDarkMode);
@@ -48,34 +47,32 @@ const CreatePdfModal = ({
               color="teal"
               mode="contained"
               uppercase={false}
-              onPress={async () => {
-                try {
-                  if (pdfFileName) {
-                    setCreateModalVisible(false);
-                    const docUri = await createPdf(
-                      chapters,
-                      pdfFileName + '.pdf',
-                    );
-                    ToastAndroid.show(
-                      'PDF created successfully!',
-                      ToastAndroid.SHORT,
-                    );
-                    await FilesystemNativeModule.openDocumentInChosenApp(
-                      docUri,
-                    );
-                    setPdfFileName('');
-                    setChapters([]);
-                  } else {
-                    ToastAndroid.show(
-                      'Please enter a file name',
-                      ToastAndroid.SHORT,
-                    );
-                  }
-                } catch (err) {
-                  console.warn(err.message);
-                }
+              onPress={() => {
+                createPdfButtonHandler(
+                  pdfFileName,
+                  setCreateModalVisible,
+                  setCSpinnerVisible,
+                  chapters,
+                  setPdfFileName,
+                  setChapters,
+                );
               }}>
               <Text style={css.text}>Create PDF</Text>
+            </Button>
+          </View>
+          <View style={css.selectImagesView}>
+            <Button
+              color="orange"
+              mode="contained"
+              uppercase={false}
+              onPress={async () => {
+                setTimeout(() => {
+                  Vibration.vibrate(10, false);
+                }, 0);
+                setCreateModalVisible(false);
+                setPdfFileName('');
+              }}>
+              <Text style={css.text}>Cancel</Text>
             </Button>
           </View>
         </View>

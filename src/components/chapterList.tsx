@@ -1,12 +1,10 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useCallback} from 'react';
-import {Pressable, View, Text} from 'react-native';
+import {Pressable, View, Text, Vibration} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useColorScheme} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import DraggableFlatList, {
-  RenderItemParams,
-} from 'react-native-draggable-flatlist';
+import DraggableFlatList, {RenderItemParams} from 'react-native-draggable-flatlist';
 
 import {chapterListProps, chapterProps} from '../types';
 import styles from '../components/styles';
@@ -27,19 +25,12 @@ const ChapterList = ({
   const renderItem = useCallback(
     ({item, drag, isActive}: RenderItemParams<chapterProps>) => {
       const onDelete = (value: chapterProps) => {
-        const data = chapters.filter(
-          chapterItem => chapterItem.id && chapterItem.id !== value.id,
-        );
+        const data = chapters.filter(chapterItem => chapterItem.id && chapterItem.id !== value.id);
         setChapters(data);
       };
 
       return (
-        <View
-          style={[
-            css.default,
-            css.centerDiv,
-            {marginTop: 15, flexDirection: 'column'},
-          ]}>
+        <View style={[css.default, css.centerDiv, {marginTop: 15, flexDirection: 'column'}]}>
           <Pressable
             style={{
               backgroundColor: 'mediumslateblue',
@@ -49,14 +40,19 @@ const ChapterList = ({
               borderColor: 'red',
               borderWidth: isActive ? 1 : 0,
             }}
-            onLongPress={drag}>
+            onLongPress={async () => {
+              drag();
+              setTimeout(() => {
+                Vibration.vibrate(10, false);
+              }, 0);
+            }}>
             <Text
               style={[
                 css.text,
                 {
                   maxWidth: '70%',
                   textAlign: 'left',
-                  left: 50,
+                  left: 60,
                   textAlignVertical: 'center',
                 },
               ]}>
@@ -69,7 +65,7 @@ const ChapterList = ({
                 {
                   maxWidth: '90%',
                   textAlign: 'left',
-                  left: 50,
+                  left: 60,
                   textAlignVertical: 'center',
                 },
               ]}>
@@ -77,11 +73,21 @@ const ChapterList = ({
               <Text>: {item.pages.length}</Text>
             </Text>
           </Pressable>
-          <Pressable onPress={() => onDelete(item)} style={css.buttonDelete}>
+          <Pressable
+            onPress={() => {
+              onDelete(item);
+              setTimeout(() => {
+                Vibration.vibrate(10, false);
+              }, 0);
+            }}
+            style={css.buttonDelete}>
             <Ionicons name="trash-outline" color="white" size={26} />
           </Pressable>
           <Pressable
             onPress={() => {
+              setTimeout(() => {
+                Vibration.vibrate(10, false);
+              }, 0);
               setDonePicking(true);
               setImages(item.pages);
               setChapterTitle(item.chapterTitle);
@@ -97,17 +103,7 @@ const ChapterList = ({
         </View>
       );
     },
-    [
-      backScreenName,
-      chapters,
-      css,
-      navigation,
-      setChapterId,
-      setChapterTitle,
-      setChapters,
-      setDonePicking,
-      setImages,
-    ],
+    [backScreenName, chapters, css, navigation, setChapterId, setChapterTitle, setChapters, setDonePicking, setImages],
   );
   return (
     <DraggableFlatList
@@ -115,7 +111,12 @@ const ChapterList = ({
       data={chapters}
       keyExtractor={item => item.id}
       renderItem={renderItem}
-      onDragEnd={({data}) => setChapters(data)}
+      onDragEnd={({data}) => {
+        setTimeout(() => {
+          Vibration.vibrate(10, false);
+        }, 0);
+        setChapters(data);
+      }}
       autoscrollSpeed={500}
       numColumns={1}
     />

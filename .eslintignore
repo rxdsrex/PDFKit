@@ -1,0 +1,3 @@
+nodejs-project-src/*
+nodejs-assets/nodejs-project/*.js
+nodejs-assets/nodejs-project/*.d.ts

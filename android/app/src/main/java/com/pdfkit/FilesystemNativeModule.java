@@ -187,8 +187,9 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
             try (Cursor cursor = currentActivity.getContentResolver().query(
                     uri, null, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(
-                            cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    int cursorColumnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (cursorColumnIndex > 0)
+                        result = cursor.getString(cursorColumnIndex);
                 }
             }
         }
@@ -211,13 +212,12 @@ public class FilesystemNativeModule extends ReactContextBaseJavaModule {
             return;
         }
 
-        Uri inputFileUri = Uri.parse(inputUriStr);
-
         FileInputStream input = null;
         FileOutputStream output = null;
         FileChannel inputChannel = null;
         FileChannel outputChannel = null;
         try {
+            Uri inputFileUri = Uri.parse(inputUriStr);
             String cacheDirPath;
             File externalCacheDir = currentActivity.getExternalCacheDir();
             if (externalCacheDir != null && externalCacheDir.exists()) {

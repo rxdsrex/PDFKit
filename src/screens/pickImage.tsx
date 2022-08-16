@@ -1,18 +1,17 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import {Text, Dimensions, View, Image, Pressable} from 'react-native';
+import {Text, Dimensions, View, Image, Pressable, Vibration} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Button} from 'react-native-paper';
 import {useColorScheme} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
+import MultipleImagePicker, {Results} from '@baronha/react-native-multiple-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import DraggableFlatList, {
-  RenderItemParams,
-} from 'react-native-draggable-flatlist';
+import DraggableFlatList, {RenderItemParams} from 'react-native-draggable-flatlist';
 
 import styles from '../components/styles';
-import {imgRouteProps, Results} from '../types';
+import {imgRouteProps} from '../types';
 import Colors from '../colors';
+import {displayAlert} from '../utils/alerts';
 
 const PickImagesScreen = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -37,27 +36,36 @@ const PickImagesScreen = () => {
     ({item, drag, isActive}: RenderItemParams<Results>) => {
       const onDelete = (value: Results) => {
         const data = images.filter(
-          imageItem =>
-            imageItem?.localIdentifier &&
-            imageItem?.localIdentifier !== value?.localIdentifier,
+          imageItem => imageItem?.localIdentifier && imageItem?.localIdentifier !== value?.localIdentifier,
         );
         setImages(data);
       };
 
       return (
         <View>
-          <Pressable onLongPress={drag}>
+          <Pressable
+            onLongPress={async () => {
+              drag();
+              setTimeout(() => {
+                Vibration.vibrate(10, false);
+              }, 0);
+            }}>
             <Image
-              width={IMAGE_WIDTH}
               source={{
                 uri: item?.path,
+                width: IMAGE_WIDTH,
               }}
               style={css.media}
               blurRadius={isActive ? 3 : 0}
               progressiveRenderingEnabled={true}
             />
             <Pressable
-              onPress={() => onDelete(item)}
+              onPress={() => {
+                onDelete(item);
+                setTimeout(() => {
+                  Vibration.vibrate(10, false);
+                }, 0);
+              }}
               style={css.imageButtonDelete}>
               <Ionicons name="close-circle" color="white" size={20} />
             </Pressable>
@@ -69,6 +77,9 @@ const PickImagesScreen = () => {
   );
 
   const getImages = async () => {
+    setTimeout(() => {
+      Vibration.vibrate(10, false);
+    }, 0);
     try {
       const response = await MultipleImagePicker.openPicker({
         mediaType: 'image',
@@ -78,17 +89,13 @@ const PickImagesScreen = () => {
         selectedColor: '#1e84b0',
       });
       setImages(response);
-    } catch (err) {
-      console.log(err.message);
+    } catch (err: any) {
+      displayAlert('Error', err.message);
     }
   };
 
   return (
-    <SafeAreaView
-      style={[
-        css.default,
-        {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter},
-      ]}>
+    <SafeAreaView style={[css.default, {backgroundColor: isDarkMode ? Colors.darker : Colors.lighter}]}>
       <Text style={css.textHeading}>Selected Images</Text>
       <View style={styles(isDarkMode, 0, images.length).addImagesTextView}>
         <Text style={css.addImageText}>Add images</Text>
@@ -96,20 +103,20 @@ const PickImagesScreen = () => {
       <View style={styles(isDarkMode, 0, images.length).imageView}>
         <DraggableFlatList
           data={images}
-          keyExtractor={(item, index) => (item?.filename ?? item?.path) + index}
+          keyExtractor={(item, index) => (item?.fileName ?? item?.path) + index}
           renderItem={renderItem}
           numColumns={1}
-          onDragEnd={({data}) => setImages(data)}
+          onDragEnd={({data}) => {
+            setTimeout(() => {
+              Vibration.vibrate(10, false);
+            }, 0);
+            setImages(data);
+          }}
           autoscrollSpeed={1200}
         />
       </View>
       <View style={css.selectView}>
-        <Button
-          style={css.buttonAdd}
-          color="green"
-          mode="contained"
-          uppercase={false}
-          onPress={getImages}>
+        <Button style={css.buttonAdd} color="green" mode="contained" uppercase={false} onPress={getImages}>
           <Text style={css.text}>{images.length ? 'Add More' : 'Add'}</Text>
         </Button>
         <Button
@@ -118,7 +125,10 @@ const PickImagesScreen = () => {
           mode="contained"
           uppercase={false}
           onPress={function () {
-            navigation.navigate(backScreenName, {
+            setTimeout(() => {
+              Vibration.vibrate(10, false);
+            }, 0);
+            navigation.navigate(backScreenName as 'Create' | 'Modify', {
               gotImages: images,
             });
           }}>
